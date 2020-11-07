@@ -13,14 +13,14 @@
             <div class="navbar-brand">FitnessTracker</div>
 
             <ul>
-                <li><a href="~">Home</a></li>
-                <li><a href="~">Bodyweight Tracking</a></li>
+                <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li><a asp-controller="Bodyweight" asp-action="Summary">Bodyweight Tracking</a></li>
                 <li><a href="~">Goal Tracking</a></li>
                 <li><a href="~">Nutrition Tracking</a></li>
             </ul>
         </div>
 
-        <div class="col-10 pl-0">
+        <div class="col-10 p-0">
             <header>
                 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
                     <div class="container" style="margin-right:0!important;padding-left:0!important">
@@ -35,19 +35,12 @@
                     </div>
                 </nav>
             </header>
-            <div class="container">
-                <main role="main" class="pb-3">
-
-
+            @*<div class="container">*@
+                <main role="main" class="p-0 ml-3">
                     @RenderBody()
                 </main>
-            </div>
+            @*</div>*@
 
-            <footer class="border-top footer text-muted">
-                <div class="container">
-                    &copy; 2020 - FitnessTracker - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                </div>
-            </footer>
             <script src="~/lib/jquery/dist/jquery.min.js"></script>
             <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
             <script src="~/js/site.js" asp-append-version="true"></script>

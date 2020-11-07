@@ -1,0 +1,49 @@
+﻿@section Scripts{
+    <script src="~/js/Bodyweight/summary.js"></script>
+}
+
+@{
+    ViewData["Title"] = "Bodyweight";
+}
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addBodyweightModal">
+    + Add Bodyweight
+</button>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="addBodyweightModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBodyweightModalLabel">Add Bodyweight</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                </button>
+            </div>
+            <form asp-controller="Bodyweight" asp-action="AddBodyweights" method="post">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group" id="dateFormGroup">
+                                <label>Date</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group" id="weightFormGroup">
+                                <label>Weight</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary" value="Save Changes" />
+                </div>
+            </form>
+
+            <input id="dateInputTemplate" class="form-control d-none" type="date" />
+            <input id="weightInputTemplate" class="form-control d-none" type="number" />
+
+        </div>
+    </div>
+</div>
