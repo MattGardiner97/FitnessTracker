@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace FitnessTracker.Data.Migrations
+namespace FitnessTracker.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20201107032339_UpdateFitnessUserNameFieldsAndBodyweightRecord")]
-    partial class UpdateFitnessUserNameFieldsAndBodyweightRecord
+    [Migration("20201108100104_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,9 +23,9 @@ namespace FitnessTracker.Data.Migrations
 
             modelBuilder.Entity("FitnessTracker.Models.BodyweightRecord", b =>
                 {
-                    b.Property<int>("ID")
+                    b.Property<long>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("Date")
@@ -42,6 +42,29 @@ namespace FitnessTracker.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("BodyweightRecords");
+                });
+
+            modelBuilder.Entity("FitnessTracker.Models.BodyweightTarget", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("TargetDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float>("TargetWeight")
+                        .HasColumnType("real");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BodyweightTargets");
                 });
 
             modelBuilder.Entity("FitnessTracker.Models.FitnessUser", b =>
@@ -253,6 +276,13 @@ namespace FitnessTracker.Data.Migrations
                 });
 
             modelBuilder.Entity("FitnessTracker.Models.BodyweightRecord", b =>
+                {
+                    b.HasOne("FitnessTracker.Models.FitnessUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("FitnessTracker.Models.BodyweightTarget", b =>
                 {
                     b.HasOne("FitnessTracker.Models.FitnessUser", "User")
                         .WithMany()
