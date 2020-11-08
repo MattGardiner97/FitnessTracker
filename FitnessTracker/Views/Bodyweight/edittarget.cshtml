@@ -1,0 +1,32 @@
+﻿@model BodyweightTarget
+
+@{
+    ViewData["Title"] = "Edit Target";
+}
+
+<div class="container w-50">
+    <form asp-controller="Bodyweight" asp-action="EditTarget" method="post">
+
+        <div class="row">
+            <div class="col-6">
+                <div class="form-group">
+                    <label>Weight</label>
+                    <input class="form-control" name="TargetWeight" type="number" min="1" max="300" />
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group">
+                    <label>Target Date</label>
+                    <input class="form-control" name="TargetDate" type="date" />
+                </div>
+            </div>
+
+
+        </div>
+        <div class="float-right">
+            <a asp-controller="Bodyweight" asp-action="Summary" class="btn btn-secondary">Cancel</a>
+            <input type="submit" class=" btn btn-primary" />
+        </div>
+    </form>
+
+</div>

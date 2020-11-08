@@ -1,0 +1,34 @@
+﻿@{
+    ViewData["Title"] = "Edit Bodyweight Records";
+}
+
+@section Scripts{
+    <script src="~/js/Bodyweight/editrecords.js"></script>
+
+}
+
+
+<div class="container w-50">
+    <form asp-controller="Bodyweight" asp-action="EditBodyweights" method="post">
+
+        <div class="row">
+            <div class="col-6">
+                <div class="form-group" id="dateFormGroup">
+                    <label>Date</label>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group" id="weightFormGroup">
+                    <label>Weight</label>
+                </div>
+            </div>
+        </div>
+        <div class="float-right">
+            <a asp-controller="Bodyweight" asp-action="Summary" class="btn btn-secondary" data-dismiss="modal">Cancel</a>
+            <input type="submit" class="btn btn-primary" value="Save Changes" />
+        </div>
+    </form>
+
+    <input id="dateInputTemplate" class="form-control d-none" type="date" />
+    <input id="weightInputTemplate" class="form-control d-none" type="number" />
+</div>
