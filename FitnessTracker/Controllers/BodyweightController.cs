@@ -3,12 +3,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using FitnessTracker.Data;
 using FitnessTracker.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Controllers
 {
+    public class SummaryModel
+    {
+        public BodyweightTarget Target { get; set; }
+        public BodyweightRecord[] Records { get; set; }
+    }
+
+    [Authorize]
     public class BodyweightController : Controller
     {
         private ApplicationDbContext dbContext;
@@ -23,9 +31,30 @@ namespace FitnessTracker.Controllers
         public async Task<IActionResult> Summary()
         {
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
-            BodyweightRecord[] weightRecords = dbContext.BodyweightRecords.Where(record => record.User == currentUser).ToArray();
 
-            return View(weightRecords);
+            BodyweightRecord[] records = new BodyweightRecord[300];
+            float lastWeight = 90;
+            Random r = new Random();
+            for(int i = 299;i >= 0;i--)
+            {
+                float factor = r.Next(0, 4) == 3 ? 0.5f : -1f;
+                float diff = (float)r.NextDouble() * factor;
+                lastWeight += diff;
+                records[i] = new BodyweightRecord()
+                {
+                    Date = DateTime.Today.AddDays(-i),
+                    Weight = lastWeight
+                };
+            }
+
+            SummaryModel resultModel = new SummaryModel()
+            {
+                Target = await dbContext.BodyweightTargets.Where(target => target.User == currentUser).FirstOrDefaultAsync(),
+                //Records = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).ToArrayAsync()
+                Records = records
+            };
+
+            return View(resultModel);
         }
 
         [HttpGet]

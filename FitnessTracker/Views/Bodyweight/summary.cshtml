@@ -1,16 +1,48 @@
-﻿@model BodyweightRecord[]
+﻿@model FitnessTracker.Controllers.SummaryModel
 
 @section Scripts{
 }
-
 @{
-    BodyweightRecord mostRecentWeight = Model?.OrderByDescending(record => record.Date).FirstOrDefault();
-    IEnumerable<BodyweightRecord> currentWeekRecords = Model?.Where(record => record.Date >= DateTime.Today.AddDays(-7)).OrderByDescending(record => record.Date);
+
+    IEnumerable<BodyweightRecord> allRecords = Model.Records?.OrderByDescending(record => record.Date);
+    IEnumerable<BodyweightRecord> currentWeekRecords = allRecords.Where(record => record.Date >= DateTime.Today.AddDays(-7));
+    IEnumerable<BodyweightRecord> currentMonthRecords = allRecords.Where(record => record.Date >= DateTime.Today.AddDays(-28));
+
+    BodyweightRecord mostRecentWeight = allRecords.FirstOrDefault();
+
     float currentWeekProgress = 0;
+    float currentWeekAverage = 0;
+    float currentMonthProgress = 0;
+    float currentMonthAverage = 0;
+    float allTimeProgress = 0;
+    float allTimeAverage = 0;
+    float distanceToTarget = 0;
+    float dailyProgressNeeded = 0;
+    float weeklyProgressNeeded = 0;
+
     if (currentWeekRecords.Count() > 0)
     {
         currentWeekProgress = currentWeekRecords.First().Weight - currentWeekRecords.Last().Weight;
+        currentWeekAverage = currentWeekProgress / 7;
     }
+
+
+    if (currentMonthRecords.Count() > 0)
+    {
+        currentMonthProgress = currentMonthRecords.First().Weight - currentMonthRecords.Last().Weight;
+        currentMonthAverage = currentMonthProgress / 28;
+    }
+
+    if (allRecords.Count() > 0)
+    {
+        allTimeProgress = allRecords.First().Weight - allRecords.Last().Weight;
+        allTimeAverage = allTimeProgress / ((float)(allRecords.First().Date - allRecords.Last().Date).TotalDays) * 7;
+    }
+
+    distanceToTarget = Model.Target == null ? 0 : Model.Target.TargetWeight - mostRecentWeight.Weight;
+    dailyProgressNeeded = Model.Target == null ? 0 : (float)(distanceToTarget / (Model.Target.TargetDate - DateTime.Today).TotalDays);
+    weeklyProgressNeeded = dailyProgressNeeded * 7;
+
 }
 
 @{
@@ -21,47 +53,165 @@
     <a asp-controller="Bodyweight" asp-action="EditTarget" class="btn btn-primary">Edit Target</a>
 </div>
 
-<div class="row">
+<div class="row my-3">
     <div class="col">
-        <div class="card">
+        <div class="card mheight-100">
             <div class="card-header">
                 <h6 class="card-subtitle">Most Recent Bodyweight</h6>
             </div>
-            <div class="card-body">
-                <h4 class="card-title text-center">
-                    @(mostRecentWeight == null ? 0 : mostRecentWeight.Weight)kg
-                </h4>
-                <h6 class="card-text text-center">
-                    tesetstst
-                </h6>
+            <div class="card-body d-flex align-items-center">
+                <div class="w-100">
+                    <h4 class="card-title text-center">
+                        @(mostRecentWeight == null ? "0" : mostRecentWeight.Weight.ToString("F2"))kg
+                    </h4>
+                    <div class="card-text text-center">
+                        @(mostRecentWeight?.Date.ToString("d"))
+                    </div>
+                </div>
             </div>
         </div>
+
     </div>
 
     <div class="col">
-        <div class="card">
+        <div class="card my-2">
             <div class="card-header">
                 <h6 class="card-subtitle">This Week's Progress</h6>
             </div>
-            <div class="card-body">
-                <h4 class="card-title text-center">
-                    @(currentWeekProgress >= 0 ? "+" : "")@(currentWeekProgress)kg
-                </h4>
+            <div class="card-body d-flex align-items-center">
+                <div class="w-100">
+                    <h4 class="card-title text-center">
+                        @(currentWeekProgress >= 0 ? "+" : "")@(currentWeekProgress.ToString("F2"))kg
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-subtitle">Daily Average (This Week)</h6>
+            </div>
+            <div class="card-body d-flex align-items-center">
+                <div class="w-100">
+                    <h4 class="card-title text-center">
+                        @(currentWeekAverage >= 0 ? "+" : "")@(currentWeekAverage.ToString("F2"))kg
+                    </h4>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="col">
-
+        <div class="card my-2">
+            <div class="card-header">
+                <h6 class="card-subtitle">Current Month's Progress</h6>
+            </div>
+            <div class="card-body d-flex align-items-center">
+                <div class="w-100">
+                    <h4 class="card-title text-center">
+                        @(currentMonthProgress >= 0 ? "+" : "")@(currentMonthProgress.ToString("F2"))kg
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-subtitle">Daily Average (This Month)</h6>
+            </div>
+            <div class="card-body d-flex align-items-center">
+                <div class="w-100">
+                    <h4 class="card-title text-center">
+                        @(currentMonthAverage >= 0 ? "+" : "")@(currentMonthAverage.ToString("F2"))kg
+                    </h4>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="col">
-
+        <div class="card my-2">
+            <div class="card-header">
+                <h6 class="card-subtitle">All Time Progress</h6>
+            </div>
+            <div class="card-body d-flex align-items-center">
+                <div class="w-100">
+                    <h4 class="card-title text-center">
+                        @(allTimeProgress >= 0 ? "+" : "")@(allTimeProgress.ToString("F2"))kg
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-subtitle">Weekly Average (All Time)</h6>
+            </div>
+            <div class="card-body d-flex align-items-center">
+                <div class="w-100">
+                    <h4 class="card-title text-center">
+                        @(allTimeAverage >= 0 ? "+" : "")@(allTimeAverage.ToString("F2"))kg
+                    </h4>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
+
+<div class="row">
     <div class="col">
-
+        <div class="card mheight-100">
+            <div class="card-header">
+                <h6 class="card-subtitle">Target Bodyweight</h6>
+            </div>
+            <div class="card-body d-flex align-items-center">
+                <div class="w-100">
+                    <h4 class="card-title text-center">
+                        @(Model.Target == null ? "0" : Model.Target.TargetWeight.ToString("F2"))kg
+                    </h4>
+                    <div class="card-text text-center">@(Model.Target.TargetDate.ToString("d"))</div>
+                </div>
+            </div>
+        </div>
     </div>
-
-
+    <div class="col">
+        <div class="card mheight-100">
+            <div class="card-header">
+                <h6 class="card-subtitle">Distance to Target</h6>
+            </div>
+            <div class="card-body d-flex align-items-center">
+                <div class="w-100">
+                    <h4 class="card-title text-center">
+                        @(distanceToTarget >= 0 ? "+" : "")@(distanceToTarget.ToString("F2"))kg
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card mheight-100">
+            <div class="card-header">
+                <h6 class="card-subtitle">Daily Progress Needed</h6>
+            </div>
+            <div class="card-body d-flex align-items-center">
+                <div class="w-100">
+                    <h4 class="card-title text-center">
+                        @(dailyProgressNeeded >= 0 ? "+" : "")@(dailyProgressNeeded.ToString("F2"))kg
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card mheight-100">
+            <div class="card-header">
+                <h6 class="card-subtitle">Weekly Progress Needed</h6>
+            </div>
+            <div class="card-body d-flex align-items-center">
+                <div class="w-100">
+                    <h4 class="card-title text-center">
+                        @(weeklyProgressNeeded >= 0 ? "+" : "")@(weeklyProgressNeeded.ToString("F2"))kg
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
