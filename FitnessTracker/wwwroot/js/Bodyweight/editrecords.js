@@ -9,22 +9,63 @@
 }
 
 function addNewInputRow() {
-    var dateClone = $("#dateInputTemplate").clone();
-    var existingDateInputCount = $("input[type=date]").length - 1;
-    dateClone.attr("name", "Dates[" + String(existingDateInputCount) + "]");
-    dateClone.removeClass("d-none");
-    dateClone.attr("id", null);
-    var newDateValue = new Date();
-    newDateValue.setDate(newDateValue.getDate() - existingDateInputCount);
-    dateClone.val(getDateString(newDateValue));
-    $("#dateFormGroup").append(dateClone);
+    //Show remove button on existing last row
+    $("#FormTableBody").find("a").last().removeClass("d-none");
 
-    var weightClone = $("#weightInputTemplate").clone();
-    var existingWeightInputCount = $("input[type=number]").length - 1;
-    weightClone.attr("name", "Weights[" + String(existingWeightInputCount) + "]");
-    weightClone.removeClass("d-none");
-    weightClone.attr("id", null);
-    $("#weightFormGroup").append(weightClone);
+    var newRowClone = $("#inputRowTemplate").clone();
+    newRowClone.attr("id", null);
+    newRowClone.removeClass("d-none");
+
+    var lastDateValue = $("#FormTableBody").find("input[type=date]").last().val();
+
+    var newDateValue = new Date(lastDateValue);
+    newDateValue.setDate(newDateValue.getDate() - 1);
+    newRowClone.find("input[type=date]").val(getDateString(newDateValue));
+
+    $("#FormTableBody").append(newRowClone);
+    updateInputNames();
+    checkConflictingDates();
+}
+
+function deleteInputRow(removeButton) {
+    $(removeButton).parents("tr").remove();
+    updateInputNames();
+}
+
+function updateInputNames() {
+    $("#FormTableBody").find("input[type=date]").each(function (index, element) {
+        $(element).attr("name", "Dates[" + String(index) + "]");
+    })
+    $("#FormTableBody").find("input[type=number]").each(function (index, element) {
+        $(element).attr("name", "Weights[" + String(index) + "]");
+    })
+}
+
+function checkConflictingDates() {
+    $("#FormTableBody").find("input[type=date]").removeClass("border-danger");
+
+    $("#FormTableBody").find("input[type=date]").each(function (outerIndex, outerElement) {
+        $("#FormTableBody").find("input[type=date]").each(function (innerIndex, innerElement) {
+            if (outerElement == innerElement)
+                return;
+
+            if ($(outerElement).val() == $(innerElement).val()) {
+                $(outerElement).addClass("border-danger");
+                $(innerElement).addClass("border-danger");
+            }
+        });
+    });
+}
+
+function formPreSubmit() {
+    if ($("input[type=date].border-danger").length > 0){
+        window.alert("Please fix all errors before submitting.");
+        return false;
+    }
+
+    $("#FormTableBody").find("tr").last().remove();
+    $("#inputRowTemplate").remove();
+    updateInputNames();
 }
 
 $(document).ready(function () {

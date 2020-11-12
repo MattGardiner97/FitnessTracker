@@ -32,26 +32,10 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
 
-            BodyweightRecord[] records = new BodyweightRecord[300];
-            float lastWeight = 90;
-            Random r = new Random();
-            for(int i = 299;i >= 0;i--)
-            {
-                float factor = r.Next(0, 4) == 3 ? 0.5f : -1f;
-                float diff = (float)r.NextDouble() * factor;
-                lastWeight += diff;
-                records[i] = new BodyweightRecord()
-                {
-                    Date = DateTime.Today.AddDays(-i),
-                    Weight = lastWeight
-                };
-            }
-
             SummaryModel resultModel = new SummaryModel()
             {
                 Target = await dbContext.BodyweightTargets.Where(target => target.User == currentUser).FirstOrDefaultAsync(),
-                //Records = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).ToArrayAsync()
-                Records = records
+                Records = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).OrderByDescending(record=>record.Date).ToArrayAsync()
             };
 
             return View(resultModel);
@@ -98,16 +82,26 @@ namespace FitnessTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> EditRecords()
         {
-            return View();
+            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+
+            
+
+            BodyweightRecord[] records = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).OrderByDescending(record=>record.Date).ToArrayAsync();
+
+            return View(records);
         }
 
         [HttpPost]
         public async Task<IActionResult> EditRecords(DateTime[] Dates, float[] Weights)
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
-
             if (Dates.Length != Weights.Length || Dates.Length == 0 || Weights.Length == 0)
                 return BadRequest();
+
+            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+
+            BodyweightRecord[] existingRecords = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).ToArrayAsync();
+            dbContext.BodyweightRecords.RemoveRange(existingRecords);
+            
 
             for (int i = 0; i < Dates.Length; i++)
             {

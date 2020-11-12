@@ -1,4 +1,6 @@
-﻿@{
+﻿@model BodyweightRecord[]
+
+@{
     ViewData["Title"] = "Edit Bodyweight Records";
 }
 
@@ -9,26 +11,47 @@
 
 
 <div class="container w-50">
-    <form asp-controller="Bodyweight" asp-action="EditRecords" method="post">
+    <form asp-controller="Bodyweight" asp-action="EditRecords" method="post" onsubmit="return formPreSubmit();">
+        <table id="FormTable" class="m-auto w-100">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Weight</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="FormTableBody">
+                @for (int i = 0; i < Model.Length; i++)
+                {
+                    <tr>
+                        <td><input type="date" class="form-control" name="Dates[@i]" value='@Model[i].Date.ToString("yyyy-MM-dd")' oninput="checkConflictingDates();" /></td>
+                        <td><input type="number" class="form-control" name="Weights[@i]" value='@Model[i].Weight.ToString("F2")' /></td>
+                        <td><a href="#" onclick="deleteInputRow(this);">Remove</a></td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr id="inputRowTemplate" class="d-none">
+                    <td>
+                        <input class="form-control" type="date" oninput="checkConflictingDates();" />
+                    </td>
+                    <td>
+                        <input class="form-control" type="number" oninput="addNewInputRow(); $(this).removeAttr('oninput');" />
+                    </td>
+                    <td><a class="d-none" href="#" onclick="deleteInputRow(this);">Remove</a></td>
+                </tr>
+            </tfoot>
+        </table>
 
-        <div class="row">
-            <div class="col-6">
-                <div class="form-group" id="dateFormGroup">
-                    <label>Date</label>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="form-group" id="weightFormGroup">
-                    <label>Weight</label>
-                </div>
-            </div>
-        </div>
-        <div class="float-right">
-            <a asp-controller="Bodyweight" asp-action="Summary" class="btn btn-secondary" data-dismiss="modal">Cancel</a>
+        <div class="float-right mt-2">
+            <a class="btn btn-secondary" asp-action="Summary">Cancel</a>
             <input type="submit" class="btn btn-primary" value="Save Changes" />
         </div>
+
     </form>
 
-    <input id="dateInputTemplate" class="form-control d-none" type="date" />
-    <input id="weightInputTemplate" class="form-control d-none" type="number" />
+
+
+
+
 </div>
