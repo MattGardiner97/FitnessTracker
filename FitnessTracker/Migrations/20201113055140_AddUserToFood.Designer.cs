@@ -4,14 +4,16 @@ using FitnessTracker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FitnessTracker.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201113055140_AddUserToFood")]
+    partial class AddUserToFood
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -190,7 +192,7 @@ namespace FitnessTracker.Migrations
                     b.Property<DateTime>("ConsumptionDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("FoodID")
+                    b.Property<long?>("FoodID")
                         .HasColumnType("bigint");
 
                     b.Property<float>("Quantity")
@@ -364,9 +366,7 @@ namespace FitnessTracker.Migrations
                 {
                     b.HasOne("FitnessTracker.Models.Food", "Food")
                         .WithMany()
-                        .HasForeignKey("FoodID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FoodID");
 
                     b.HasOne("FitnessTracker.Models.FitnessUser", "User")
                         .WithMany()

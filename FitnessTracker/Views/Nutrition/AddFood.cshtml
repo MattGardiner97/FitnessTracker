@@ -1,31 +1,98 @@
-﻿@{ 
+﻿@model FitnessTracker.Controllers.NewFoodModel
+
+@{
     ViewData["Title"] = "Add Food";
 }
 
-<form>
-    <div class="form-group">
+@section Scripts{
+    <script src="~/js/Nutrition/AddFood.js"></script>
+}
+
+
+
+<h2>Add Existing Food</h2>
+<select id="ExistingFoodDropdown" onchange="onExistingFoodSelected();">
+    <option></option>
+    @foreach (Food f in Model.UserFoods)
+    {
+        <option value="@f.ID" data-ID="@f.ID" data-Name="@f.Name" data-Carbs="@f.Carbohydrates" data-Protein="@f.Protein" data-Fat="@f.Fat" data-Calories="@f.Calories">
+            @f.Name
+        </option>
+    }
+</select>
+
+<form id="NewFoodForm" asp-controller="Nutrition" asp-action="AddNewFood" method="post">
+    <div class="mb-2">
+        <h2 class="d-inline mr-2 align-middle">Add New Food</h2>
+        <input type="submit" class="btn btn-primary" value="Save" />
+    </div>
+
+    <div class="form-group form-inline">
+        <label class="mr-1">Name</label>
+        <input type="text" name="Name" class="form-control mr-4" />
+
+        <label class="mr-1">Serving Size</label>
+        <input type="number" name="ServingSize" class="form-control mr-4" />
+
+        <label class="mr-1">Serving Unit</label>
+        <select name="ServingUnit">
+            <option value="ea">ea</option>
+            <option value="ml">ml</option>
+            <option value="g">g</option>
+        </select>
+    </div>
+
+    <div class="form-group form-inline">
+        <label class="mr-1">Carbohydrates</label>
+        <input type="number" name="Carbs" class="form-control mr-4" />
+
+        <label class="mr-1">Protein</label>
+        <input type="number" name="Protein" class="form-control mr-4" />
+
+        <label class="mr-1">Fat</label>
+        <input type="number" name="Fat" class="form-control mr-4" />
+
+        <label class="mr-1">Calories</label>
+        <input type="number" name="Calories" class="form-control  mr-4" />
+    </div>
+</form>
+
+<hr />
+
+<form asp-controller="Nutrition" asp-action="EditRecords" method="post">
+
+    <div class="form-group form-inline">
         <label>Date</label>
-        <input type="date" name="" />
+        <input type="date" name="Date" class="form-control" value="@(((DateTime)ViewData["selectedDate"]).ToString("yyyy-MM-dd"))"/>
     </div>
 
-    <div class="form-group">
-        <input type="text" name="FoodName" class="form-control" />
-    </div>
 
-    <hr />
-
-    <table>
+    <table class="table">
         <thead>
             <tr>
-                <td>Food</td>
-                <td>Calories</td>
-                <td>Carbohydrates</td>
-                <td>Protein</td>
-                <td>Fat</td>
+                <th>Food</th>
+                <th>Quantity</th>
+                <th>Carbohydrates</th>
+                <th>Protein</th>
+                <th>Fat</th>
+                <th>Calories</th>
+                <th></th>
+            </tr>
+
+            <tr id="NewRowTemplate" class="d-none">
+                <td>
+                    <input type="hidden" class="recordID" />
+                    <input type="text" class="recordName" disabled />
+                </td>
+                <td><input type="number" class="recordQuantity" min="0" step="0.1" value="1" /></td>
+                <td><input type="number" class="recordCarbs" disabled /></td>
+                <td><input type="number" class="recordProtein" disabled /></td>
+                <td><input type="number" class="recordFat" disabled /></td>
+                <td><input type="number" class="recordCalories" disabled /></td>
+                <td><a href="#" onclick="removeRow(this)">Remove</a></td>
             </tr>
         </thead>
-        <tbody>
-
+        <tbody id="RecordBody">
         </tbody>
     </table>
 </form>
