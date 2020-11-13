@@ -11,6 +11,8 @@ namespace FitnessTracker.Data
     {
         public DbSet<BodyweightRecord> BodyweightRecords { get; set; }
         public DbSet<BodyweightTarget> BodyweightTargets { get; set; }
+        public DbSet<Food> UserFoods { get; set; }
+        public DbSet<FoodRecord> FoodRecords { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
