@@ -1,12 +1,6 @@
-﻿
-function onExistingFoodSelected() {
-    var selectedValue = $("#ExistingFoodDropdown").val();
-    var selectedOption = $("#ExistingFoodDropdown").find("option[value=" + String(selectedValue) + "]");
-    addFoodRecord(selectedOption[0]);
-    $("#ExistingFoodDropdown").val(0);
-}
+﻿function addFoodRecord(addButton) {
+    var selectedCard = $(addButton).parents(".card");
 
-function addFoodRecord(selectedOption) {
     var id = $(selectedOption).data("id");
     var name = $(selectedOption).data("name");
     var carbs = $(selectedOption).data("carbs");
@@ -28,6 +22,48 @@ function addFoodRecord(selectedOption) {
     $("#RecordBody").append(rowClone);
     updateInputNames();
 }
+
+function setNewFoodFields(editButton) {
+    var selectedCard = $(editButton).parents(".card");
+
+    var id = $(selectedCard).data("id");
+    var name = $(selectedCard).data("name");
+    var carbs = $(selectedCard).data("carbs");
+    var protein = $(selectedCard).data("protein");
+    var fat = $(selectedCard).data("fat");
+    var calories = $(selectedCard).data("calories");
+    var size = $(selectedCard).data("servingsize");
+    var unit = $(selectedCard).data("servingunit");
+
+    $("#existingFoodID").val(id);
+    $("#newFoodName").val(name);
+    $("#newFoodSize").val(size);
+    $("#newFoodUnit").val(unit);
+    $("#newFoodCarbs").val(carbs);
+    $("#newFoodProtein").val(protein);
+    $("#newFoodFat").val(fat);
+    $("#newFoodCalories").val(calories);
+
+    newFoodIDChanged();
+
+}
+
+function newFoodIDChanged() {
+    if ($("#existingFoodID").val() == 0) {
+        $("#NewFoodHeader").text("Add New Food")
+        $("#NewFoodCancel").addClass("d-none");
+    }
+    else {
+        $("#NewFoodHeader").text("Edit Food");
+        $("#NewFoodCancel").removeClass("d-none");
+    }
+}
+
+function cancelEdit() {
+    $("#existingFoodID").val(0);
+    newFoodIDChanged();
+}
+
 function updateInputNames() {
     $("#RecordBody").find("tr").each(function (index, row) {
         $(row).find(".recordID").attr("name", "FoodIDs[" + String(index) + "]");
@@ -39,7 +75,3 @@ function removeRow(row) {
     $(row).parents("tr").remove();
     updateInputNames();
 }
-
-$(document).ready(function () {
-    window.alert("Add Edit Food functionality");
-});

@@ -11,30 +11,55 @@
 
 
 <h2>Add Existing Food</h2>
-<select id="ExistingFoodDropdown" onchange="onExistingFoodSelected();">
-    <option></option>
-    @foreach (Food f in Model.UserFoods)
-    {
-        <option value="@f.ID" data-ID="@f.ID" data-Name="@f.Name" data-Carbs="@f.Carbohydrates" data-Protein="@f.Protein" data-Fat="@f.Fat" data-Calories="@f.Calories">
-            @f.Name
-        </option>
-    }
-</select>
+<div class="horizontalScrollBox" style="overflow-x:auto;overflow-y:hidden;white-space:nowrap;">
+        @foreach (Food f in Model.UserFoods)
+        {
+            <div class="col-2 d-inline-block float-none" style="margin-right:-0.5rem;margin-left:-0.5rem">
+                <div class="card" data-ID="@f.ID" data-Name="@f.Name" data-Carbs="@f.Carbohydrates" data-Protein="@f.Protein" data-Fat="@f.Fat" data-Calories="@f.Calories" data-ServingSize="@f.ServingSize" data-ServingUnit="@f.ServingUnit">
+                    <div class="card-body">
+                        <h3 class="text-center">
+                            @f.Name
+                        </h3>
 
-<form id="NewFoodForm" asp-controller="Nutrition" asp-action="AddNewFood" method="post">
+                        <h6 class="text-center font-weight-lighter">
+                            @(f.ServingSize)@(f.ServingUnit.ToString())
+                        </h6>
+                        <h5 class="text-center font-weight-normal">
+                            @(f.Calories)cal
+                        </h5>
+
+                    </div>
+                    <div class="card-footer text-center">
+                        <button type="button" class="btn btn-primary" onclick="addFoodRecord(this);">Add</button>
+                        <button type="button" class="btn btn-primary" onclick="setNewFoodFields(this);">Edit</button>
+                        <form asp-controller="Nutrition" asp-action="DeleteFood" class="d-inline">
+                            <input type="hidden" value="@f.ID" name="ID" />
+                            <input type="submit" class="btn btn-danger" value="Delete" />
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        }
+    </div>
+
+<form id="NewFoodForm" asp-controller="Nutrition" asp-action="AddNewFood" method="post" class="mt-4">
     <div class="mb-2">
-        <h2 class="d-inline mr-2 align-middle">Add New Food</h2>
+        <h2 class="d-inline mr-2 align-middle" id="NewFoodHeader">Add New Food</h2>
         <input type="submit" class="btn btn-primary" value="Save" />
+        <input type="reset" class="btn btn-danger d-none" value="Cancel" id="NewFoodCancel" onclick="cancelEdit();" />
     </div>
 
     <div class="form-group form-inline">
+        <input type="hidden" name="ID" id="existingFoodID" value="0" />
+
         <label class="mr-1">Name</label>
-        <input type="text" name="Name" class="form-control mr-4" />
+        <input type="text" name="Name" class="form-control mr-4" id="newFoodName" />
 
         <label class="mr-1">Serving Size</label>
-        <input type="number" name="ServingSize" class="form-control mr-4" />
+        <input type="number" name="ServingSize" class="form-control mr-4" id="newFoodSize" />
 
-        <label class="mr-1">Serving Unit</label>
+        <label class="mr-1" id="newFoodUnit">Serving Unit</label>
         <select name="ServingUnit">
             <option value="ea">ea</option>
             <option value="ml">ml</option>
@@ -44,26 +69,26 @@
 
     <div class="form-group form-inline">
         <label class="mr-1">Carbohydrates</label>
-        <input type="number" name="Carbs" class="form-control mr-4" />
+        <input type="number" name="Carbs" class="form-control mr-4" id="newFoodCarbs" />
 
         <label class="mr-1">Protein</label>
-        <input type="number" name="Protein" class="form-control mr-4" />
+        <input type="number" name="Protein" class="form-control mr-4" id="newFoodProtein" />
 
         <label class="mr-1">Fat</label>
-        <input type="number" name="Fat" class="form-control mr-4" />
+        <input type="number" name="Fat" class="form-control mr-4" id="newFoodFat" />
 
         <label class="mr-1">Calories</label>
-        <input type="number" name="Calories" class="form-control  mr-4" />
+        <input type="number" name="Calories" class="form-control  mr-4" id="newFoodCalories" />
     </div>
 </form>
 
-<hr />
+<h2 class="mt-3">Food Records</h2>
 
 <form asp-controller="Nutrition" asp-action="EditRecords" method="post">
 
     <div class="form-group form-inline">
         <label>Date</label>
-        <input type="date" name="Date" class="form-control" value="@(((DateTime)ViewData["selectedDate"]).ToString("yyyy-MM-dd"))"/>
+        <input type="date" name="Date" class="form-control" value="@(((DateTime)ViewData["selectedDate"]).ToString("yyyy-MM-dd"))" />
     </div>
 
 

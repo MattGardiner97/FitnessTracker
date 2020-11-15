@@ -1,6 +1,7 @@
 ﻿using FitnessTracker.Data;
 using FitnessTracker.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,7 @@ namespace FitnessTracker.Controllers
         private ApplicationDbContext dbContext;
         private UserManager<FitnessUser> userManager;
 
-        public NutritionController(ApplicationDbContext DBContext,UserManager<FitnessUser> UserManager)
+        public NutritionController(ApplicationDbContext DBContext, UserManager<FitnessUser> UserManager)
         {
             dbContext = DBContext;
             userManager = UserManager;
@@ -50,24 +51,16 @@ namespace FitnessTracker.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddNewFood(string Name, int ServingSize, ServingUnit ServingUnit, int Calories, int Carbs, int Protein, int Fat)
+        public async Task<IActionResult> AddNewFood(Food Food)
         {
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            Food.CreatedBy = currentUser;
+            if (Food.ID == 0)
+                dbContext.UserFoods.Add(Food);
+            else
+                dbContext.UserFoods.Update(Food);
 
-            Food newFood = new Food()
-            {
-                CreatedBy = currentUser,
-                Name = Name,
-                ServingSize = ServingSize,
-                ServingUnit = ServingUnit,
-                Calories = Calories,
-                Carbohydrates = Carbs,
-                Protein = Protein,
-                Fat = Fat
-            };
-            dbContext.UserFoods.Add(newFood);
-
-            await dbContext.SaveChangesAsync();            
+            await dbContext.SaveChangesAsync();
 
             return RedirectToAction("AddFood");
         }
@@ -81,7 +74,7 @@ namespace FitnessTracker.Controllers
             dbContext.FoodRecords.RemoveRange(existingRecords);
 
             FoodRecord[] newRecords = new FoodRecord[FoodIDs.Length];
-            for(int i = 0; i < FoodIDs.Length;i++)
+            for (int i = 0; i < FoodIDs.Length; i++)
             {
                 newRecords[i] = new FoodRecord()
                 {
@@ -92,6 +85,21 @@ namespace FitnessTracker.Controllers
                 };
             }
             dbContext.FoodRecords.AddRange(newRecords);
+            await dbContext.SaveChangesAsync();
+
+            return RedirectToAction("AddFood");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteFood(long ID)
+        {
+            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+
+            Food targetFood = await dbContext.UserFoods.FirstOrDefaultAsync(food => food.ID == ID);
+            if (targetFood == null || targetFood.CreatedBy != currentUser)
+                return BadRequest();
+
+            dbContext.UserFoods.Remove(targetFood);
             await dbContext.SaveChangesAsync();
 
             return RedirectToAction("AddFood");
