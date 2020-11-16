@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Text;
 using FitnessTracker.Models;
@@ -22,6 +23,24 @@ namespace FitnessTracker.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<FoodRecord>(entity =>
+            {
+                entity.HasOne(record => record.Food)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(record => record.User)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<Food>(entity =>
+            {
+                entity.HasOne(food => food.CreatedBy)
+                .WithMany()
+                .OnDelete(DeleteBehavior.ClientCascade);
+            });
         }
     }
 }

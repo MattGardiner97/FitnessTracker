@@ -1,12 +1,12 @@
 ﻿function addFoodRecord(addButton) {
     var selectedCard = $(addButton).parents(".card");
 
-    var id = $(selectedOption).data("id");
-    var name = $(selectedOption).data("name");
-    var carbs = $(selectedOption).data("carbs");
-    var protein = $(selectedOption).data("protein");
-    var fat = $(selectedOption).data("fat");
-    var calories = $(selectedOption).data("calories");
+    var id = $(selectedCard).data("id");
+    var name = $(selectedCard).data("name");
+    var carbs = $(selectedCard).data("carbs");
+    var protein = $(selectedCard).data("protein");
+    var fat = $(selectedCard).data("fat");
+    var calories = $(selectedCard).data("calories");
 
     var rowClone = $("#NewRowTemplate").clone();
     rowClone.removeAttr("id");
@@ -67,11 +67,19 @@ function cancelEdit() {
 function updateInputNames() {
     $("#RecordBody").find("tr").each(function (index, row) {
         $(row).find(".recordID").attr("name", "FoodIDs[" + String(index) + "]");
-        $(row).find(".recordQuantity").attr("name", "FoodIDs[" + String(index) + "]");
+        $(row).find(".recordQuantity").attr("name", "Quantities[" + String(index) + "]");
     });
 }
 
 function removeRow(row) {
     $(row).parents("tr").remove();
     updateInputNames();
+}
+
+function updateCalories() {
+    var carbs = $("#newFoodCarbs").val();
+    var protein = $("#newFoodProtein").val();
+    var fat = $("#newFoodFat").val();
+    var calories = (carbs * 4) + (protein * 4) + (fat * 9);
+    $("#newFoodCalories").val(calories);
 }

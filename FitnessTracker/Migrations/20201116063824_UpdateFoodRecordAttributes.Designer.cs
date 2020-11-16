@@ -4,14 +4,16 @@ using FitnessTracker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FitnessTracker.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201116063824_UpdateFoodRecordAttributes")]
+    partial class UpdateFoodRecordAttributes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,15 +157,13 @@ namespace FitnessTracker.Migrations
                     b.Property<int>("Carbohydrates")
                         .HasColumnType("int");
 
-                    b.Property<string>("CreatedByID")
-                        .IsRequired()
+                    b.Property<string>("CreatedById")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Fat")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Protein")
@@ -177,7 +177,7 @@ namespace FitnessTracker.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("CreatedByID");
+                    b.HasIndex("CreatedById");
 
                     b.ToTable("UserFoods");
                 });
@@ -360,9 +360,7 @@ namespace FitnessTracker.Migrations
                 {
                     b.HasOne("FitnessTracker.Models.FitnessUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedByID")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
+                        .HasForeignKey("CreatedById");
                 });
 
             modelBuilder.Entity("FitnessTracker.Models.FoodRecord", b =>

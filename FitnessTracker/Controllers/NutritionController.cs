@@ -55,6 +55,7 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
             Food.CreatedBy = currentUser;
+
             if (Food.ID == 0)
                 dbContext.UserFoods.Add(Food);
             else

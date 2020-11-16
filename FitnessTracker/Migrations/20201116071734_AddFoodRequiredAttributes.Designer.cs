@@ -4,14 +4,16 @@ using FitnessTracker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FitnessTracker.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201116071734_AddFoodRequiredAttributes")]
+    partial class AddFoodRequiredAttributes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,7 +157,7 @@ namespace FitnessTracker.Migrations
                     b.Property<int>("Carbohydrates")
                         .HasColumnType("int");
 
-                    b.Property<string>("CreatedByID")
+                    b.Property<string>("CreatedById")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -177,7 +179,7 @@ namespace FitnessTracker.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("CreatedByID");
+                    b.HasIndex("CreatedById");
 
                     b.ToTable("UserFoods");
                 });
@@ -360,7 +362,7 @@ namespace FitnessTracker.Migrations
                 {
                     b.HasOne("FitnessTracker.Models.FitnessUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedByID")
+                        .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
                 });
