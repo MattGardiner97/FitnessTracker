@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Add Food";
+
+    FoodRecord[] recordForCurrentDate = Model.FoodRecords.Where(record => record.ConsumptionDate == (DateTime)ViewData["selectedDate"]).ToArray();
 }
 
 @section Scripts{
@@ -165,14 +167,16 @@
             </tr>
         </thead>
         <tbody id="RecordBody">
-            @foreach (FoodRecord record in Model.FoodRecords.Where(record => record.ConsumptionDate == (DateTime)ViewData["selectedDate"]))
+            @for (int i = 0; i < recordForCurrentDate.Length; i++)
             {
+                FoodRecord record = recordForCurrentDate[i];
+
                 <tr>
                     <td>
-                        <input type="hidden" class="recordID" value="@record.FoodID" />
+                        <input type="hidden" class="recordID" value="@record.FoodID" name="FoodIDs[@i]" />
                         <input type="text" class="recordName" value="@record.Food.Name" disabled />
                     </td>
-                    <td><input type="number" class="recordQuantity" min="0" step="0.1" value="@record.Quantity" /></td>
+                    <td><input type="number" class="recordQuantity" min="0" step="0.1" value="@record.Quantity" name="Quantities[@i]" /></td>
                     <td><input type="number" class="recordCarbs" value="@record.Food.Carbohydrates" disabled /></td>
                     <td><input type="number" class="recordProtein" value="@record.Food.Protein" disabled /></td>
                     <td><input type="number" class="recordFat" value="@record.Food.Fat" disabled /></td>
