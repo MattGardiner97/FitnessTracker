@@ -1,0 +1,182 @@
+﻿@model FitnessTracker.Controllers.NutritionSummaryModel
+
+@{
+    ViewData["Title"] = "Nutrition";
+
+    var todayRecords = Model.Records.Where(record => record.ConsumptionDate == DateTime.Today);
+    int todayCalories = todayRecords.Sum(record => record.Food.Calories);
+    int todayCarbs = todayRecords.Sum(record => record.Food.Carbohydrates);
+    int todayProtein = todayRecords.Sum(record => record.Food.Protein);
+    int todayFat = todayRecords.Sum(record => record.Food.Fat);
+
+    var yesterdayRecords = Model.Records.Where(record => record.ConsumptionDate == DateTime.Today.AddDays(-1));
+    int yesterdayCalories = yesterdayRecords.Sum(record => record.Food.Calories);
+    int yesterdayCarbs = yesterdayRecords.Sum(record => record.Food.Carbohydrates);
+    int yesterdayProtein = yesterdayRecords.Sum(record => record.Food.Protein);
+    int yesterdayFat = yesterdayRecords.Sum(record => record.Food.Protein);
+
+    var weekRecordGroup = Model.Records.Where(record => record.ConsumptionDate >= DateTime.Today.AddDays(-7)).GroupBy(record => record.ConsumptionDate);
+    int weekCaloriesAverage = (int)weekRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Calories));
+    int weekCarbsAverage = (int)weekRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Carbohydrates));
+    int weekProteinAverage = (int)weekRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Protein));
+    int weekFatAverage = (int)weekRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Fat));
+
+    var monthRecordGroup = Model.Records.Where(record => record.ConsumptionDate >= DateTime.Today.AddDays(-28)).GroupBy(record => record.ConsumptionDate);
+    int monthCaloriesAverage = (int)monthRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Calories));
+    int monthCarbsAverage = (int)monthRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Carbohydrates));
+    int monthProteinAverage = (int)monthRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Protein));
+    int monthFatAverage = (int)monthRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Fat));
+
+
+
+}
+
+<h1>Nutrition Summary</h1>
+
+<a asp-controller="Nutrition" asp-action="AddFood" class="btn btn-primary mb-3">Add Food</a>
+
+<div class="row">
+    @*<div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Target</h3>
+                </div>
+            </div>
+        </div>*@
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h3>Target</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-2">
+                    <h4>Calories</h4>
+                    @Model.Target.DailyCalories cal
+                </div>
+                <div class="d-flex text-center">
+                    <div class="flex-grow-1">
+                        <h6>Carbs</h6>
+                        <div>@(Model.Target.DailyCarbohydrates)g</div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Fat</h6>
+                        <div>@(Model.Target.DailyProtein)g</div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Protein</h6>
+                        <div>@(Model.Target.DailyFat)g</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h3>Today</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-2">
+                    <h4>Calories</h4>
+                    @todayCalories cal
+                </div>
+                <div class="d-flex text-center">
+                    <div class="flex-grow-1">
+                        <h6>Carbs</h6>
+                        <div>@(todayCarbs)g</div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Fat</h6>
+                        <div>@(todayProtein)g</div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Protein</h6>
+                        <div>@(todayFat)g</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h3>Yesterday</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-2">
+                    <h4>Calories</h4>
+                    @yesterdayCalories cal
+                </div>
+                <div class="d-flex text-center">
+                    <div class="flex-grow-1">
+                        <h6>Carbs</h6>
+                        <div>@(yesterdayCarbs)g</div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Fat</h6>
+                        <div>@(yesterdayProtein)g</div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Protein</h6>
+                        <div>@(yesterdayFat)g</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h3>Last 7 days <span class="small" style="font-size:55%">Average</span></h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-2">
+                    <h4>Calories</h4>
+                    @weekCaloriesAverage cal
+                </div>
+                <div class="d-flex text-center">
+                    <div class="flex-grow-1">
+                        <h6>Carbs</h6>
+                        <div>@(weekCarbsAverage)g</div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Fat</h6>
+                        <div>@(weekProteinAverage)g</div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Protein</h6>
+                        <div>@(weekFatAverage)g</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h3>Last 28 days <span class="small" style="font-size:55%">Average</span></h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-2">
+                    <h4>Calories</h4>
+                    @monthCaloriesAverage cal
+                </div>
+                <div class="d-flex text-center">
+                    <div class="flex-grow-1">
+                        <h6>Carbs</h6>
+                        <div>@(monthCarbsAverage)g</div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Fat</h6>
+                        <div>@(monthProteinAverage)g</div>
+
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Protein</h6>
+                        <div>@(monthFatAverage)g</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -12,6 +12,10 @@
     <Compile Remove="Migrations\20201116071120_AddFoodRequiredAttributes.Designer.cs" />
     <Compile Remove="Migrations\20201116071312_AddFoodRequiredAttributes.cs" />
     <Compile Remove="Migrations\20201116071312_AddFoodRequiredAttributes.Designer.cs" />
+    <Compile Remove="Migrations\20201119044934_AddNutritionTargetModel.cs" />
+    <Compile Remove="Migrations\20201119044934_AddNutritionTargetModel.Designer.cs" />
+    <Compile Remove="Migrations\20201119045102_AddNutritionTargetModel.cs" />
+    <Compile Remove="Migrations\20201119045102_AddNutritionTargetModel.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

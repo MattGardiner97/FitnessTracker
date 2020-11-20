@@ -17,6 +17,11 @@ namespace FitnessTracker.Controllers
         public Food[] UserFoods { get; set; }
         public FoodRecord[] FoodRecords { get; set; }
     }
+    public class NutritionSummaryModel
+    {
+        public FoodRecord[] Records { get; set; }
+        public NutritionTarget Target { get; set; } 
+    }
 
     [Authorize]
     public class NutritionController : Controller
@@ -105,5 +110,29 @@ namespace FitnessTracker.Controllers
 
             return RedirectToAction("AddFood");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Summary()
+        {
+            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+
+            FoodRecord[] userRecords = await dbContext.FoodRecords
+                .Where(record => record.User == currentUser && record.ConsumptionDate >= DateTime.Today.AddDays(-28))
+                .Include(record => record.Food)
+                .ToArrayAsync();
+            NutritionTarget userTarget = await dbContext.NutritionTargets.FirstOrDefaultAsync(record => record.User == currentUser);
+            if (userTarget == null)
+                userTarget = new NutritionTarget();
+
+            NutritionSummaryModel summaryModel = new NutritionSummaryModel()
+            {
+                Records = userRecords,
+                Target = userTarget
+            };
+
+            return View(summaryModel);
+        }
     }
+
+    
 }

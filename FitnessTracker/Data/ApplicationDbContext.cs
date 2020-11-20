@@ -14,6 +14,7 @@ namespace FitnessTracker.Data
         public DbSet<BodyweightTarget> BodyweightTargets { get; set; }
         public DbSet<Food> UserFoods { get; set; }
         public DbSet<FoodRecord> FoodRecords { get; set; }
+        public DbSet<NutritionTarget> NutritionTargets { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -40,6 +41,13 @@ namespace FitnessTracker.Data
                 entity.HasOne(food => food.CreatedBy)
                 .WithMany()
                 .OnDelete(DeleteBehavior.ClientCascade);
+            });
+
+            builder.Entity<NutritionTarget>(entity =>
+            {
+                entity.HasOne(record => record.User)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
