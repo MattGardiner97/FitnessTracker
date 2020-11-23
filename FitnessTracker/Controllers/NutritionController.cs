@@ -20,7 +20,7 @@ namespace FitnessTracker.Controllers
     public class NutritionSummaryModel
     {
         public FoodRecord[] Records { get; set; }
-        public NutritionTarget Target { get; set; } 
+        public NutritionTarget Target { get; set; }
     }
 
     [Authorize]
@@ -134,5 +134,5 @@ namespace FitnessTracker.Controllers
         }
     }
 
-    
+
 }

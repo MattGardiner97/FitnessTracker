@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Controllers
 {
-    public class SummaryModel
+    public class BodyweightSummaryModel
     {
         public BodyweightTarget Target { get; set; }
         public BodyweightRecord[] Records { get; set; }
@@ -32,7 +32,7 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
 
-            SummaryModel resultModel = new SummaryModel()
+            BodyweightSummaryModel resultModel = new BodyweightSummaryModel()
             {
                 Target = await dbContext.BodyweightTargets.Where(target => target.User == currentUser).FirstOrDefaultAsync(),
                 Records = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).OrderByDescending(record=>record.Date).ToArrayAsync()

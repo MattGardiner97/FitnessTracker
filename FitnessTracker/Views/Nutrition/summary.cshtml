@@ -31,18 +31,46 @@
 
 }
 
+@section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script src="~/js/Nutrition/summary.js"></script>
+}
+
 <h1>Nutrition Summary</h1>
 
 <a asp-controller="Nutrition" asp-action="AddFood" class="btn btn-primary mb-3">Add Food</a>
 
+<div id="WeekGraphData" class="d-none">
+    @foreach (var group in weekRecordGroup)
+    {
+        <div data-date="@(((DateTime)(group.Key)).ToString("yyyy-MM-dd"))"
+             data-calories="@group.Sum(record => record.Food.Calories)"
+             data-carbs="@group.Sum(record => record.Food.Carbohydrates)"
+             data-protein="@group.Sum(record => record.Food.Protein)"
+             data-fat="@group.Sum(record => record.Food.Fat)">
+
+        </div>
+    }
+</div>
+
+<div id="MonthGraphData" class="d-none">
+    @foreach (var group in monthRecordGroup)
+    {
+        <div data-date="@(((DateTime)(group.Key)).ToString("yyyy-MM-dd"))"
+             data-calories="@group.Sum(record => record.Food.Calories)"
+             data-carbs="@group.Sum(record => record.Food.Carbohydrates)"
+             data-protein="@group.Sum(record => record.Food.Protein)"
+             data-fat="@group.Sum(record => record.Food.Fat)">
+
+        </div>
+    }
+</div>
+
+<div id="MonthGraphData" class="d-none">
+
+</div>
+
 <div class="row">
-    @*<div class="col">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Target</h3>
-                </div>
-            </div>
-        </div>*@
     <div class="col">
         <div class="card">
             <div class="card-header">
@@ -178,5 +206,29 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<h3 class="text-center mt-3">Last 7 Days</h3>
+<div class="row mt-3 mb-3">
+    <div class="col">
+        <canvas id="WeekCaloriesGraph" style="max-width:100%">
+        </canvas>
+    </div>
+    <div class="col">
+        <canvas id="WeekMacroGraph" style="max-width:100%">
+        </canvas>
+    </div>
+</div>
+
+<h3 class="text-center mt-3">Last 28 Days</h3>
+<div class="row mt-3">
+    <div class="col">
+        <canvas id="MonthCaloriesGraph" style="max-width:100%">
+        </canvas>
+    </div>
+    <div class="col">
+        <canvas id="MonthMacroGraph" style="max-width:100%">
+        </canvas>
     </div>
 </div>
