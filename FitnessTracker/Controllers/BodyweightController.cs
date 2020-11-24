@@ -94,7 +94,7 @@ namespace FitnessTracker.Controllers
         [HttpPost]
         public async Task<IActionResult> EditRecords(DateTime[] Dates, float[] Weights)
         {
-            if (Dates.Length != Weights.Length || Dates.Length == 0 || Weights.Length == 0)
+            if (Dates.Length != Weights.Length)
                 return BadRequest();
 
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
@@ -114,6 +114,23 @@ namespace FitnessTracker.Controllers
                 dbContext.BodyweightRecords.Add(newRecord);
             }
 
+            await dbContext.SaveChangesAsync();
+            return RedirectToAction("Summary");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddTodayWeight(float Weight)
+        {
+            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+
+            BodyweightRecord newRecord = new BodyweightRecord()
+            {
+                User = currentUser,
+                Date = DateTime.Today,
+                Weight = Weight
+            };
+
+            dbContext.BodyweightRecords.Add(newRecord);
             await dbContext.SaveChangesAsync();
             return RedirectToAction("Summary");
         }

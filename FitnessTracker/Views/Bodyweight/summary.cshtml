@@ -1,8 +1,12 @@
 ﻿@model FitnessTracker.Controllers.BodyweightSummaryModel
 
 @section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script src="~/js/Bodyweight/summary.js"></script>
 }
+
 @{
+    ViewData["Title"] = "Bodyweight";
 
     IEnumerable<BodyweightRecord> allRecords = Model.Records?.OrderByDescending(record => record.Date);
     IEnumerable<BodyweightRecord> currentWeekRecords = allRecords.Where(record => record.Date >= DateTime.Today.AddDays(-7));
@@ -39,18 +43,54 @@
         allTimeAverage = allTimeProgress / ((float)(allRecords.First().Date - allRecords.Last().Date).TotalDays) * 7;
     }
 
-    distanceToTarget = Model.Target == null ? 0 : Model.Target.TargetWeight - mostRecentWeight.Weight;
+
+    distanceToTarget = 0;
+    if (Model.Target != null && mostRecentWeight != null)
+        distanceToTarget = Model.Target.TargetWeight - mostRecentWeight.Weight;
     dailyProgressNeeded = Model.Target == null ? 0 : (float)(distanceToTarget / (Model.Target.TargetDate - DateTime.Today).TotalDays);
     weeklyProgressNeeded = dailyProgressNeeded * 7;
 
+
 }
 
-@{
-    ViewData["Title"] = "Bodyweight";
-}
+<h1>Bodyweight Summary</h1>
+
 <div>
     <a asp-controller="Bodyweight" asp-action="EditRecords" class="btn btn-primary">Edit Bodyweights</a>
     <a asp-controller="Bodyweight" asp-action="EditTarget" class="btn btn-primary">Edit Target</a>
+</div>
+
+@if (mostRecentWeight == null || mostRecentWeight.Date != DateTime.Today)
+{
+<div class="row">
+    <div class="col-3">
+        <div class="alert alert-info mt-2">
+            <h5 class="ml-3">Add Today's Weight</h5>
+
+            <form asp-action="AddTodayWeight" method="post" class="ml-3 mr-3">
+                <div class="input-group form-inline ">
+                    <input type="number" min="0" max="200" name="Weight" step="1" class="form-control mr-1" />
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+}
+
+
+<div id="WeekGraphData" class="d-none">
+    @foreach (var record in currentWeekRecords)
+    {
+        <div data-date="@record.Date.ToString("yyyy-MM-dd")" data-weight="@record.Weight.ToString("F2")"></div>
+    }
+</div>
+
+<div id="MonthGraphData" class="d-none">
+    @foreach (var record in currentMonthRecords)
+    {
+        <div data-date="@record.Date.ToString("yyyy-MM-dd")" data-weight="@record.Weight.ToString("F2")"></div>
+    }
 </div>
 
 <div class="row my-3">
@@ -215,3 +255,19 @@
         </div>
     </div>
 </div>
+
+<div class="row mt-3">
+    <div class="col">
+        <h2 class="text-center">This Week</h2>
+        <canvas id="WeekGraph" style="max-width:100%;">
+        </canvas>
+    </div>
+    <div class="col">
+        <h2 class="text-center">This Month</h2>
+        <canvas id="MonthGraph" style="max-width:100%;">
+        </canvas>
+    </div>
+</div>
+
+
+

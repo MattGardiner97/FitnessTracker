@@ -30,6 +30,7 @@ function addNewInputRow() {
 function deleteInputRow(removeButton) {
     $(removeButton).parents("tr").remove();
     updateInputNames();
+    checkConflictingDates();
 }
 
 function updateInputNames() {
@@ -42,11 +43,15 @@ function updateInputNames() {
 }
 
 function checkConflictingDates() {
+    var lastRow = $("#FormTableBody tr").last().find("input[type=date]")[0];
+
     $("#FormTableBody").find("input[type=date]").removeClass("border-danger");
 
     $("#FormTableBody").find("input[type=date]").each(function (outerIndex, outerElement) {
         $("#FormTableBody").find("input[type=date]").each(function (innerIndex, innerElement) {
             if (outerElement == innerElement)
+                return;
+            if (outerElement == lastRow || innerElement == lastRow)
                 return;
 
             if ($(outerElement).val() == $(innerElement).val()) {
@@ -69,5 +74,6 @@ function formPreSubmit() {
 }
 
 $(document).ready(function () {
-    addNewInputRow();  
+    addNewInputRow();
+    $("#FormTableBody").find("input[type=date]").last().val(getDateString(new Date()));
 })
