@@ -1,0 +1,39 @@
+﻿@model Goal[]
+
+@{
+    ViewData["Title"] = "Goals";
+}
+
+<h1>Goal Tracking</h1>
+
+<a asp-controller="Goal" asp-action="AddGoal" class="btn btn-primary">Add Goal</a>
+
+<div class="row">
+    @*@foreach (Goal goal in Model)*@
+    @for(int i = 0; i < 10;i++)
+    {
+        Goal goal = Model[0];
+
+        <div class="col-3 mt-3">
+            <div class="card">
+                <div class="card-header">
+                    <h3>@goal.Activity</h3>
+                </div>
+                <div class="card-body text-center" style="font-size:1.1rem">
+                    @if (goal.GetType() == typeof(WeightliftingGoal))
+                    {
+                        WeightliftingGoal wGoal = (WeightliftingGoal)goal;
+
+                    <div class="card-text text-">@(wGoal.Weight)KG x @(wGoal.Reps) reps</div>
+                    }
+                </div>
+                <div class="card-footer">
+                    <div class="">
+                    <a href="#" class="btn btn-primary">Edit</a>
+                    <a href="#" class="btn btn-danger">Delete</a>
+                        </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
