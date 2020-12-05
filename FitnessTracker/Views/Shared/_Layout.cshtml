@@ -7,12 +7,12 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
-<body class="h-100">
+<body class="h-100 overflow-hidden">
     <div class="row h-100 mx-0">
-        <div id="sidebar" class="col-2 p-0">
-            <div class="navbar-brand">FitnessTracker</div>
+        <div id="sidebar" class="col-2 p-0 bg-primary">
+            <div class="navbar-brand text-white" style="font-size:30px">FitnessTracker</div>
 
-            <ul>
+            <ul class="text-white">
                 <li><a asp-controller="Home" asp-action="Index">Home</a></li>
                 <li><a asp-controller="Bodyweight" asp-action="Summary">Bodyweight Tracking</a></li>
                 <li><a asp-controller="Goal" asp-action="Summary">Goal Tracking</a></li>
@@ -37,7 +37,7 @@
                 </nav>
             </header>
             @*<div class="container">*@
-                <main role="main" class="p-0 mx-3">
+                <main role="main" class="p-0 ml-3 mr-2" style="overflow-y:auto;height:1px;min-height:100%">
                     @RenderBody()
                 </main>
             @*</div>*@

@@ -4,34 +4,53 @@
     ViewData["Title"] = "Goals";
 }
 
-<h1>Goal Tracking</h1>
+<div>
+    <h2 class="d-inline">My Goals</h2>
+    <a asp-controller="Goal" asp-action="AddGoal" class="font-weight-bold ml-1" style="vertical-align:text-bottom">+Add Goal</a>
 
-<a asp-controller="Goal" asp-action="AddGoal" class="btn btn-primary">Add Goal</a>
+</div>
+
+
 
 <div class="row">
-    @*@foreach (Goal goal in Model)*@
-    @for(int i = 0; i < 10;i++)
+    @foreach (Goal goal in Model)
     {
-        Goal goal = Model[0];
-
         <div class="col-3 mt-3">
             <div class="card">
                 <div class="card-header">
-                    <h3>@goal.Activity</h3>
+                    <h4>@goal.Activity</h4>
                 </div>
                 <div class="card-body text-center" style="font-size:1.1rem">
-                    @if (goal.GetType() == typeof(WeightliftingGoal))
+                    @switch (goal)
                     {
-                        WeightliftingGoal wGoal = (WeightliftingGoal)goal;
-
-                    <div class="card-text text-">@(wGoal.Weight)KG x @(wGoal.Reps) reps</div>
+                        case WeightliftingGoal wg:
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h3>@(wg.Weight)kg</h3>
+                                    <small>Weight</small>
+                                </div>
+                                <div class="col-6">
+                                    <h3>@(wg.Reps)</h3>
+                                    <small>Reps</small>
+                                </div>
+                            </div>
+                            break;
+                        case TimedGoal tg:
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h3>@tg.Quantity</h3>
+                                    <small>@tg.QuantityUnit</small>
+                                </div>
+                                <div class="col-6">
+                                    <h3>@tg.Time.ToString("hh\\:mm\\:ss")</h3>
+                                    <small>Time</small>
+                                </div>
+                            </div>
+                            break;
                     }
                 </div>
                 <div class="card-footer">
-                    <div class="">
-                    <a href="#" class="btn btn-primary">Edit</a>
-                    <a href="#" class="btn btn-danger">Delete</a>
-                        </div>
+                    <a asp-action="ViewGoal" asp-route-id="@goal.ID" class="btn btn-primary float-right">View</a>
                 </div>
             </div>
         </div>

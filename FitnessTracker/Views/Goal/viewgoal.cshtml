@@ -1,0 +1,231 @@
+﻿@model FitnessTracker.ViewModels.GoalViewModel
+
+@{
+    ViewData["Title"] = Model.Goal.Activity;
+}
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h4>@Model.Goal.Activity</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-7">
+                        <div class="row">
+                            <div class="col border-right text-center">
+                                <h3 class="border-bottom pb-1">Goal</h3>
+
+                                <div class="row">
+                                    @switch (Model.Goal)
+                                    {
+                                        case WeightliftingGoal wg:
+
+                                            <div class="col">
+
+                                                <h3>@(wg.Weight)kg</h3>
+                                                <small>Weight</small>
+                                            </div>
+                                            <div class="col">
+
+
+                                                <h3>@(wg.Reps)</h3>
+                                                <small>Reps</small>
+
+                                            </div>
+                                            break;
+                                        case TimedGoal tg:
+                                            <div class="col">
+                                                <h3>@(tg.Quantity)</h3>
+                                                <small>@tg.QuantityUnit</small>
+                                            </div>
+                                            <div class="col">
+                                                <h3>@tg.Time.ToString("hh\\:mm\\:ss")</h3>
+                                                <small>Time</small>
+                                            </div>
+                                            break;
+                                    }
+                                </div>
+                            </div>
+                            <div class="col border-right text-center">
+                                <h3 class="border-bottom pb-1">Personal Best</h3>
+
+                                <div class="row">
+                                    @switch (Model.Goal)
+                                    {
+                                        case WeightliftingGoal wg:
+                                            WeightliftingProgress highestWeightRecord = (WeightliftingProgress)Model.Progress
+                                                .OrderByDescending(record => ((WeightliftingProgress)record).Weight)
+                                                .ThenBy(record => ((WeightliftingProgress)record).Reps)
+                                                .FirstOrDefault();
+
+
+                                            <div class="col">
+                                                <h3>@(highestWeightRecord == null ? 0 : highestWeightRecord.Weight)kg</h3>
+                                                <small>Weights</small>
+                                            </div>
+                                            <div class="col">
+                                                <h3>@(highestWeightRecord == null ? 0 : highestWeightRecord.Reps)</h3>
+                                                <small>Reps</small>
+                                            </div>
+
+                                            <small>@(highestWeightRecord == null ? "" : highestWeightRecord.Date.ToString("d"))</small>
+
+                                            break;
+                                        case TimedGoal tg:
+                                            TimedProgress lowestTimeRecord = (TimedProgress)Model.Progress
+                                                .OrderBy(record => ((TimedProgress)record).Time)
+                                                .ThenByDescending(record => ((TimedProgress)record).Quantity)
+                                                .FirstOrDefault();
+
+                                            <div class="col">
+                                                <h3>@(lowestTimeRecord == null ? 0 : lowestTimeRecord.Quantity)</h3>
+                                                <small>@(tg.QuantityUnit)</small>
+                                            </div>
+
+                                            <div class="col">
+                                                <h3>@(lowestTimeRecord == null ? "00:00:00" : lowestTimeRecord.Time.ToString("hh\\:mm\\:ss")) </h3>
+                                                <small>Time</small>
+                                            </div>
+                                            break;
+
+                                            <small>@(lowestTimeRecord == null ? "" : lowestTimeRecord.Date.ToString("d"))</small>
+
+                                    }
+                                </div>
+
+                            </div>
+
+                            <div class="col border-right text-center">
+                                <h3 class="border-bottom pb-1">Most Recent</h3>
+
+                                <div class="row">
+                                    @switch (Model.Goal)
+                                    {
+                                        case WeightliftingGoal wg:
+
+                                            WeightliftingProgress mostRecentWeightRecord = (WeightliftingProgress)Model.Progress
+                                                        .OrderByDescending(record => record.Date)
+                                                        .FirstOrDefault();
+
+                                            <div class="col">
+                                                <h3>@(mostRecentWeightRecord == null ? 0 : mostRecentWeightRecord.Weight)kg</h3>
+                                                <small>Weight</small>
+                                            </div>
+                                            <div class="col">
+                                                <h3>@(mostRecentWeightRecord == null ? 0 : mostRecentWeightRecord.Reps)</h3>
+                                                <small>Reps</small>
+                                            </div>
+
+                                            <small>@(mostRecentWeightRecord == null ? "" : mostRecentWeightRecord.Date.ToString("d"))</small>
+
+                                            break;
+                                        case TimedGoal tg:
+
+                                            TimedProgress mostRecentTimeRecord = (TimedProgress)Model.Progress
+                                                .OrderBy(record => record.Date)
+                                                .FirstOrDefault();
+
+                                            <div class="col">
+                                                <h3>@(mostRecentTimeRecord == null ? 0 : mostRecentTimeRecord.Quantity)</h3>
+                                                <small>@(tg.QuantityUnit)</small>
+                                            </div>
+
+                                            <div class="col">
+                                                <h3>@(mostRecentTimeRecord == null ? "00:00:00" : mostRecentTimeRecord.Time.ToString("hh\\:mm\\:ss")) </h3>
+                                                <small>Time</small>
+                                            </div>
+                                            break;
+
+                                            <small>@(mostRecentTimeRecord == null ? "" : mostRecentTimeRecord.Date.ToString("d"))</small>
+                                            break;
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <table>
+                            <thead>
+                                <tr>
+                                    @switch (Model.Goal)
+                                    {
+                                        case WeightliftingGoal wg:
+                                            <td>Date</td>
+                                            <td>Weight</td>
+                                            <td>Reps</td>
+                                            break;
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <a class="font-weight-bold float-right" href="#" data-toggle="modal" data-target="#AddProgressModal">+Add Progress</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Add progress modal window *@
+<div class="modal fade" id="AddProgressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Add Progress</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="text-white" aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="AddProgress" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="GoalID" value="@Model.Goal.ID" />
+
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" name="Date" class="form-control" />
+                    </div>
+
+                    @switch (Model.Goal)
+                    {
+                        case WeightliftingGoal wg:
+                            <div class="form-group">
+                                <label>Weight</label>
+                                <input type="number" min="0" step="1" name="Weight" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label>Reps</label>
+                                <input type="number" min="0" step="1" name="Reps" class="form-control" />
+                            </div>
+
+                            break;
+                        case TimedGoal tg:
+
+                            <div class="form-group">
+                                <label>Quantity</label>
+                                <input type="number" min="0" name="Quantity" placeholder="@tg.QuantityUnit" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label>Time</label>
+                                <div class="form-inline">
+                                    <input type="number" min="0" max="24" step="1" name="Hours" placeholder="Hours" class="form-control" />
+                                    <input type="number" min="0" max="60" step="1" name="Minutes" placeholder="Minutes" class="form-control" />
+                                    <input type="number" min="0" max="60" step="1" name="Seconds" placeholder="Seconds" class="form-control" />
+                                </div>
+                            </div>
+
+                            break;
+                    }
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
