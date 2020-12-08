@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace FitnessTracker.Controllers
@@ -23,7 +24,7 @@ namespace FitnessTracker.Controllers
             dbContext = DBContext;
             userManager = UserManager;
 
-            
+
         }
 
         [HttpGet]
@@ -45,9 +46,9 @@ namespace FitnessTracker.Controllers
                 ID = 0,
                 User = currentUser
             };
-            
 
-            return View("editgoal",model);
+
+            return View("editgoal", model);
         }
 
         [HttpGet]
@@ -118,7 +119,7 @@ namespace FitnessTracker.Controllers
             return RedirectToAction("Summary");
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> AddProgress(int GoalID, string Type, DateTime Date, float Weight, int Reps, int Quantity, int Hours, int Minutes, int Seconds)
         {
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
@@ -146,7 +147,7 @@ namespace FitnessTracker.Controllers
                         Date = Date,
                         Goal = goal,
                         User = currentUser,
-                        Time = new TimeSpan(Hours,Minutes,Seconds),
+                        Time = new TimeSpan(Hours, Minutes, Seconds),
                         Quantity = Quantity
                     };
                     dbContext.TimedProgressRecords.Add(tp);
@@ -157,7 +158,7 @@ namespace FitnessTracker.Controllers
 
             await dbContext.SaveChangesAsync();
 
-            return RedirectToAction("Summary");
+            return RedirectToAction("ViewGoal", new { ID = GoalID });
         }
 
         [HttpGet]
@@ -169,7 +170,11 @@ namespace FitnessTracker.Controllers
             if (goal == null)
                 return BadRequest();
 
-            GoalProgress[] progress = await dbContext.GoalProgressRecords.Where(record => record.Goal == goal && record.User == currentUser).ToArrayAsync();
+            GoalProgress[] progress = await dbContext
+                .GoalProgressRecords.Where(record => record.Goal == goal && record.User == currentUser)
+                .OrderByDescending(progress => progress.Date)
+                .ToArrayAsync();
+
             if (progress == null)
                 return BadRequest();
 
@@ -182,5 +187,28 @@ namespace FitnessTracker.Controllers
             return View(viewModel);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetWeightliftingProgress(long GoalID)
+        {
+            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+
+            Goal targetGoal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == GoalID);
+            if (targetGoal.User != currentUser)
+                return BadRequest();
+
+            var progress = await dbContext.WeightliftingProgressRecords
+                .Where(record => record.Goal.ID == GoalID)
+                .OrderBy(record => record.Date)
+                .Select(record => new { Date = record.Date.ToString("d"), Weight = record.Weight, Reps = record.Reps })
+                .ToArrayAsync();
+
+            return Json(progress);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTimedProgress(long GoalID)
+        {
+            return BadRequest();
+        }
     }
 }

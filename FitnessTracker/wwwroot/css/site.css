@@ -93,7 +93,8 @@ body {
 #sidebar {
     background-color: white;
     box-shadow: 0.25rem 0 0.75rem 0px rgba(0, 0, 0, .05);
-    height: 100%;
+    min-height:100%;
+    height: auto;
     z-index: 1;
 }
 

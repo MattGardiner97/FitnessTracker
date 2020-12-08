@@ -16,16 +16,16 @@
     int yesterdayFat = yesterdayRecords.Sum(record => record.Food.Protein);
 
     var weekRecordGroup = Model.Records.Where(record => record.ConsumptionDate >= DateTime.Today.AddDays(-7)).GroupBy(record => record.ConsumptionDate);
-    int weekCaloriesAverage = (int)weekRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Calories));
-    int weekCarbsAverage = (int)weekRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Carbohydrates));
-    int weekProteinAverage = (int)weekRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Protein));
-    int weekFatAverage = (int)weekRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Fat));
+    int weekCaloriesAverage =  weekRecordGroup.Count() == 0 ? 0 :(int)weekRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Calories));
+    int weekCarbsAverage = weekRecordGroup.Count() == 0 ? 0 : (int)weekRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Carbohydrates));
+    int weekProteinAverage = weekRecordGroup.Count() == 0 ? 0 : (int)weekRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Protein));
+    int weekFatAverage = weekRecordGroup.Count() == 0 ? 0 : (int)weekRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Fat));
 
     var monthRecordGroup = Model.Records.Where(record => record.ConsumptionDate >= DateTime.Today.AddDays(-28)).GroupBy(record => record.ConsumptionDate);
-    int monthCaloriesAverage = (int)monthRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Calories));
-    int monthCarbsAverage = (int)monthRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Carbohydrates));
-    int monthProteinAverage = (int)monthRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Protein));
-    int monthFatAverage = (int)monthRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Fat));
+    int monthCaloriesAverage = monthRecordGroup.Count() == 0 ? 0 : (int)monthRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Calories));
+    int monthCarbsAverage = monthRecordGroup.Count() == 0 ? 0 : (int)monthRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Carbohydrates));
+    int monthProteinAverage = monthRecordGroup.Count() == 0 ? 0 : (int)monthRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Protein));
+    int monthFatAverage = monthRecordGroup.Count() == 0 ? 0 : (int)monthRecordGroup.Average(grouping => grouping.Sum(record => record.Food.Fat));
 
 
 
@@ -39,32 +39,6 @@
 <h1>Nutrition Summary</h1>
 
 <a asp-controller="Nutrition" asp-action="AddFood" class="btn btn-primary mb-3">Add Food</a>
-
-<div id="WeekGraphData" class="d-none">
-    @foreach (var group in weekRecordGroup)
-    {
-        <div data-date="@(((DateTime)(group.Key)).ToString("yyyy-MM-dd"))"
-             data-calories="@group.Sum(record => record.Food.Calories)"
-             data-carbs="@group.Sum(record => record.Food.Carbohydrates)"
-             data-protein="@group.Sum(record => record.Food.Protein)"
-             data-fat="@group.Sum(record => record.Food.Fat)">
-
-        </div>
-    }
-</div>
-
-<div id="MonthGraphData" class="d-none">
-    @foreach (var group in monthRecordGroup)
-    {
-        <div data-date="@(((DateTime)(group.Key)).ToString("yyyy-MM-dd"))"
-             data-calories="@group.Sum(record => record.Food.Calories)"
-             data-carbs="@group.Sum(record => record.Food.Carbohydrates)"
-             data-protein="@group.Sum(record => record.Food.Protein)"
-             data-fat="@group.Sum(record => record.Food.Fat)">
-
-        </div>
-    }
-</div>
 
 <div id="MonthGraphData" class="d-none">
 

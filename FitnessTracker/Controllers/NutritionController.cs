@@ -132,6 +132,33 @@ namespace FitnessTracker.Controllers
 
             return View(summaryModel);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetNutritionData(uint PreviousDays = 7)
+        {
+            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            var records = await dbContext.FoodRecords
+                .Where(record => record.ConsumptionDate >= DateTime.Today.AddDays(-PreviousDays) && record.User == currentUser)
+                .Include(record => record.Food)
+                .ToArrayAsync();
+
+
+
+                var result = records
+                .GroupBy(record => record.ConsumptionDate)
+                .Select(grouping =>
+                new
+                {
+                    Date = grouping.Key.ToString("d"),
+                    Calories = grouping.Sum(r => r.Food.Calories),
+                    Carbs = grouping.Sum(r => r.Food.Carbohydrates),
+                    Protein = grouping.Sum(r => r.Food.Protein),
+                    Fat = grouping.Sum(r => r.Food.Fat)
+                })
+                .ToArray();
+
+            return Json(result);
+        }
     }
 
 
