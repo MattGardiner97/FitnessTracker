@@ -35,7 +35,7 @@ namespace FitnessTracker.Controllers
             BodyweightSummaryModel resultModel = new BodyweightSummaryModel()
             {
                 Target = await dbContext.BodyweightTargets.Where(target => target.User == currentUser).FirstOrDefaultAsync(),
-                Records = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).OrderByDescending(record=>record.Date).ToArrayAsync()
+                Records = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).OrderByDescending(record => record.Date).ToArrayAsync()
             };
 
             return View(resultModel);
@@ -84,9 +84,9 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
 
-            
 
-            BodyweightRecord[] records = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).OrderByDescending(record=>record.Date).ToArrayAsync();
+
+            BodyweightRecord[] records = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).OrderByDescending(record => record.Date).ToArrayAsync();
 
             return View(records);
         }
@@ -101,7 +101,7 @@ namespace FitnessTracker.Controllers
 
             BodyweightRecord[] existingRecords = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).ToArrayAsync();
             dbContext.BodyweightRecords.RemoveRange(existingRecords);
-            
+
 
             for (int i = 0; i < Dates.Length; i++)
             {
@@ -133,6 +133,21 @@ namespace FitnessTracker.Controllers
             dbContext.BodyweightRecords.Add(newRecord);
             await dbContext.SaveChangesAsync();
             return RedirectToAction("Summary");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetBodyweightData(int PreviousDays)
+        {
+            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+
+            var records = await dbContext.BodyweightRecords
+                .Where(record => record.User == currentUser && record.Date >= DateTime.Today.AddDays(-PreviousDays))
+                .OrderBy(record => record.Date)
+                .ToArrayAsync();
+
+            var result = records.Select(record => new { Date = record.Date.ToString("d"), Weight = record.Weight }).ToArray();
+
+            return Json(result);
         }
     }
 }

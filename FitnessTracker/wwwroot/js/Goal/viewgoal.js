@@ -31,14 +31,16 @@ function LoadWeightliftingGraph() {
                     datasets: [{
                         label: "Weight (kg)",
                         data: weights,
-                        fill: false,
+                        backgroundColor: 'rgba(0,0,0,0)',
+
                         borderColor: ["#0089dc"]
                     },
                     {
                         label: "Goal (kg)",
                         data: goalWeight,
                         borderDash: [5, 5],
-                        fill: false,
+                        backgroundColor: 'rgba(0,0,0,0)',
+
                         borderColor: ["#0089dc"]
                     }]
                 },
