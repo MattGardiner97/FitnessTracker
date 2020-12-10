@@ -1,4 +1,4 @@
-﻿@model FitnessTracker.Controllers.BodyweightSummaryModel
+﻿@model FitnessTracker.ViewModels.BodyweightSummaryViewModel
 
 @section Scripts{
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
@@ -18,48 +18,6 @@
         return x;
     }
 
-    IEnumerable<BodyweightRecord> allRecords = Model.Records?.OrderByDescending(record => record.Date);
-    IEnumerable<BodyweightRecord> currentWeekRecords = allRecords.Where(record => record.Date >= DateTime.Today.AddDays(-7));
-    IEnumerable<BodyweightRecord> currentMonthRecords = allRecords.Where(record => record.Date >= DateTime.Today.AddDays(-28));
-
-    BodyweightRecord mostRecentWeight = allRecords.FirstOrDefault();
-
-    float currentWeekProgress = 0;
-    float currentWeekAverage = 0;
-    float currentMonthProgress = 0;
-    float currentMonthAverage = 0;
-    float allTimeProgress = 0;
-    float allTimeAverage = 0;
-    float distanceToTarget = 0;
-    float dailyProgressNeeded = 0;
-    float weeklyProgressNeeded = 0;
-
-    if (currentWeekRecords.Count() > 0)
-    {
-        currentWeekProgress = currentWeekRecords.First().Weight - currentWeekRecords.Last().Weight;
-        currentWeekAverage = currentWeekProgress / 7;
-    }
-
-
-    if (currentMonthRecords.Count() > 0)
-    {
-        currentMonthProgress = currentMonthRecords.First().Weight - currentMonthRecords.Last().Weight;
-        currentMonthAverage = currentMonthProgress / 28;
-    }
-
-    if (allRecords.Count() > 0)
-    {
-        allTimeProgress = allRecords.First().Weight - allRecords.Last().Weight;
-        allTimeAverage = allTimeProgress / ((float)(allRecords.First().Date - allRecords.Last().Date).TotalDays) * 7;
-    }
-
-
-    distanceToTarget = 0;
-    if (Model.Target != null && mostRecentWeight != null)
-        distanceToTarget = Model.Target.TargetWeight - mostRecentWeight.Weight;
-    dailyProgressNeeded = Model.Target == null ? 0 : (float)(distanceToTarget / (Model.Target.TargetDate - DateTime.Today).TotalDays);
-    weeklyProgressNeeded = dailyProgressNeeded * 7;
-
 
 }
 
@@ -68,7 +26,7 @@
     <a asp-controller="Bodyweight" asp-action="EditRecords" class="font-weight-bold d-inline">+Add Bodyweights</a>
 </div>
 
-@if (mostRecentWeight == null || mostRecentWeight.Date != DateTime.Today)
+@if (Model.MostRecentRecord == null || Model.MostRecentRecord.Date != DateTime.Today)
 {
     <div class="row">
         <div class="col-3">
@@ -96,10 +54,11 @@
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
                     <h4 class="card-title text-center">
-                        @(mostRecentWeight == null ? "0" : mostRecentWeight.Weight.ToString("F2"))kg
+                        @(Model.MostRecentRecord == null ? "0" : Model.MostRecentRecord.Weight.ToString("F2"))kg
                     </h4>
                     <div class="card-text text-center">
-                        @(mostRecentWeight?.Date.ToString("d"))
+                        @if (Model.MostRecentRecord != null)
+                            @(Model.MostRecentRecord.Date.ToString("d"))
                     </div>
                 </div>
             </div>
@@ -115,7 +74,7 @@
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
                     <h4 class="card-title text-center">
-                        @FormatWeight(currentWeekProgress)
+                        @FormatWeight(Model.CurrentWeekProgress)
                     </h4>
                 </div>
             </div>
@@ -127,7 +86,7 @@
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
                     <h4 class="card-title text-center">
-                        @FormatWeight(currentWeekAverage)
+                        @FormatWeight(Model.CurrentWeekAverage)
                     </h4>
                 </div>
             </div>
@@ -142,7 +101,7 @@
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
                     <h4 class="card-title text-center">
-                        @FormatWeight(currentMonthProgress)
+                        @FormatWeight(Model.CurrentMonthProgress)
                     </h4>
                 </div>
             </div>
@@ -154,7 +113,7 @@
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
                     <h4 class="card-title text-center">
-                        @FormatWeight(currentMonthAverage)
+                        @FormatWeight(Model.CurrentMonthAverage)
                     </h4>
                 </div>
             </div>
@@ -169,7 +128,7 @@
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
                     <h4 class="card-title text-center">
-                        @FormatWeight(allTimeProgress)
+                        @FormatWeight(Model.AllTimeProgress)
                     </h4>
                 </div>
             </div>
@@ -181,7 +140,7 @@
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
                     <h4 class="card-title text-center">
-                        @FormatWeight(allTimeAverage)
+                        @FormatWeight(Model.AllTimeAverage)
                     </h4>
                 </div>
             </div>
@@ -215,7 +174,7 @@
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
                     <h4 class="card-title text-center">
-                        @FormatWeight(distanceToTarget)
+                        @FormatWeight(Model.DistanceToTarget)
                     </h4>
                 </div>
             </div>
@@ -229,7 +188,7 @@
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
                     <h4 class="card-title text-center">
-                        @FormatWeight(dailyProgressNeeded)
+                        @FormatWeight(Model.DailyProgressNeeded)
                     </h4>
                 </div>
             </div>
@@ -243,7 +202,7 @@
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
                     <h4 class="card-title text-center">
-                        @FormatWeight(weeklyProgressNeeded)
+                        @FormatWeight(Model.WeeklyProgressNeeded)
                     </h4>
                 </div>
             </div>
@@ -290,11 +249,9 @@
                         <input class="form-control" name="TargetDate" type="date" />
                     </div>
 
-
-
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <input type="submit" class="btn btn-primary" value="Save">
                 </div>
             </form>

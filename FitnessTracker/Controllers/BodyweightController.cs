@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FitnessTracker.Data;
 using FitnessTracker.Models;
+using FitnessTracker.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,12 +13,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Controllers
 {
-    public class BodyweightSummaryModel
-    {
-        public BodyweightTarget Target { get; set; }
-        public BodyweightRecord[] Records { get; set; }
-    }
-
     [Authorize]
     public class BodyweightController : Controller
     {
@@ -32,13 +29,15 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
 
-            BodyweightSummaryModel resultModel = new BodyweightSummaryModel()
-            {
-                Target = await dbContext.BodyweightTargets.Where(target => target.User == currentUser).FirstOrDefaultAsync(),
-                Records = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).OrderByDescending(record => record.Date).ToArrayAsync()
-            };
+            IEnumerable<BodyweightRecord> records = await dbContext.BodyweightRecords
+                .Where(record => record.User == currentUser)
+                .OrderByDescending(record => record.Date)
+                .ToArrayAsync();
+            BodyweightTarget target = await dbContext.BodyweightTargets.FirstOrDefaultAsync(target => target.User == currentUser);
 
-            return View(resultModel);
+            BodyweightSummaryViewModel viewModel = new BodyweightSummaryViewModel(records, target);
+
+            return View(viewModel);
         }
 
         [HttpGet]
