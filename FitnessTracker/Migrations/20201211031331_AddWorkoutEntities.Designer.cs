@@ -4,14 +4,16 @@ using FitnessTracker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FitnessTracker.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201211031331_AddWorkoutEntities")]
+    partial class AddWorkoutEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -298,7 +300,7 @@ namespace FitnessTracker.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("GoalProgress");
                 });
 
-            modelBuilder.Entity("FitnessTracker.Models.WorkoutPlan", b =>
+            modelBuilder.Entity("FitnessTracker.Models.WorkoutActivity", b =>
                 {
                     b.Property<long>("ID")
                         .ValueGeneratedOnAdd()
@@ -309,7 +311,34 @@ namespace FitnessTracker.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SessionsJSON")
+                    b.Property<string>("Quantity")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RestPeriodSeconds")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Sets")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("WorkoutSessionID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("WorkoutSessionID");
+
+                    b.ToTable("WorkoutActivities");
+                });
+
+            modelBuilder.Entity("FitnessTracker.Models.WorkoutPlan", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -322,6 +351,30 @@ namespace FitnessTracker.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("WorkoutPlans");
+                });
+
+            modelBuilder.Entity("FitnessTracker.Models.WorkoutSession", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("DayNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("WorkoutPlanID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("WorkoutPlanID");
+
+                    b.ToTable("WorkoutSessions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -575,6 +628,13 @@ namespace FitnessTracker.Migrations
                         .HasForeignKey("UserId");
                 });
 
+            modelBuilder.Entity("FitnessTracker.Models.WorkoutActivity", b =>
+                {
+                    b.HasOne("FitnessTracker.Models.WorkoutSession", null)
+                        .WithMany("Activities")
+                        .HasForeignKey("WorkoutSessionID");
+                });
+
             modelBuilder.Entity("FitnessTracker.Models.WorkoutPlan", b =>
                 {
                     b.HasOne("FitnessTracker.Models.FitnessUser", "User")
@@ -582,6 +642,13 @@ namespace FitnessTracker.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FitnessTracker.Models.WorkoutSession", b =>
+                {
+                    b.HasOne("FitnessTracker.Models.WorkoutPlan", null)
+                        .WithMany("Sessions")
+                        .HasForeignKey("WorkoutPlanID");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

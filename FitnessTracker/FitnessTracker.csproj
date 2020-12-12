@@ -16,6 +16,16 @@
     <Compile Remove="Migrations\20201119044934_AddNutritionTargetModel.Designer.cs" />
     <Compile Remove="Migrations\20201119045102_AddNutritionTargetModel.cs" />
     <Compile Remove="Migrations\20201119045102_AddNutritionTargetModel.Designer.cs" />
+    <Compile Remove="Migrations\20201211031155_AddWorkoutEntities.cs" />
+    <Compile Remove="Migrations\20201211031155_AddWorkoutEntities.Designer.cs" />
+    <Compile Remove="Migrations\20201211031309_AddWorkoutEntities.cs" />
+    <Compile Remove="Migrations\20201211031309_AddWorkoutEntities.Designer.cs" />
+    <Compile Remove="Migrations\20201211031822_UpdateWorkoutDeleteCascade.cs" />
+    <Compile Remove="Migrations\20201211031822_UpdateWorkoutDeleteCascade.Designer.cs" />
+    <Compile Remove="Migrations\20201211032310_UpdateWorkoutDeleteCascade.cs" />
+    <Compile Remove="Migrations\20201211032310_UpdateWorkoutDeleteCascade.Designer.cs" />
+    <Compile Remove="Migrations\20201211032619_UpdateWorkoutDeleteCascade.cs" />
+    <Compile Remove="Migrations\20201211032619_UpdateWorkoutDeleteCascade.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

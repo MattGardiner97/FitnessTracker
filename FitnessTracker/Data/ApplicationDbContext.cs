@@ -21,6 +21,7 @@ namespace FitnessTracker.Data
         public DbSet<GoalProgress> GoalProgressRecords { get; set; }
         public DbSet<WeightliftingProgress> WeightliftingProgressRecords { get; set; }
         public DbSet<TimedProgress> TimedProgressRecords { get; set; }
+        public DbSet<WorkoutPlan> WorkoutPlans { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -55,6 +56,7 @@ namespace FitnessTracker.Data
                 .WithMany()
                 .OnDelete(DeleteBehavior.Cascade);
             });
+
         }
     }
 }

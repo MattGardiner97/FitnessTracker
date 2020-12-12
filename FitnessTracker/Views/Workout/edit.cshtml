@@ -1,0 +1,152 @@
+﻿@model WorkoutPlan
+
+@{
+    ViewData["Title"] = "Edit Workout";
+}
+
+@section Scripts{
+    <script src="~/js/Workout/edit.js"></script>
+}
+
+<form asp-controller="Workout" asp-action="Edit" method="post" onsubmit="formPreSubmit();">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 id="PlanNameHeader">@Model.Name</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-3 border-right">
+                    <h3 class="border-bottom">Plan</h3>
+
+                    <input type="hidden" name="ID" value="@Model.ID" />
+                    <input type="hidden" id="SessionJSONInput" name="SessionsJSON" value="@Model.SessionsJSON" />
+
+                    <div class="form-group form-inline">
+                        <label class="mr-2">Name</label>
+                        <input type="text" name="Name" class="form-control" oninput="planName_Input(this);" value="@Model.Name" />
+                    </div>
+
+
+                    <a href="#" class="font-weight-bold" onclick="addNewSession();">+Add Session</a>
+
+                    <ul id="SessionList" class="list-group">
+                        @for (int i = 0; i < Model.Sessions?.Length; i++)
+                        {
+                            <li class="list-group-item" style="cursor:pointer;" onclick="sessionListItem_Clicked(this);">@Model.Sessions[i].Name</li>
+                        }
+                    </ul>
+                </div>
+                <div class="col-3 border-right" id="SessionContainer">
+                    <h3 class="border-bottom">Session</h3>
+                    @for (int i = 0; i < Model.Sessions?.Length; i++)
+                    {
+                        WorkoutSession session = Model.Sessions[i];
+                        <table class="sessionForm d-none table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td><label class="mr-2">Name</label></td>
+                                    <td><input type="text" value="@session.Name" class=" form-control" oninput="sessionName_Input(this)" /></td>
+                                </tr>
+                                <tr>
+                                    <td><label class="mr-2">Day Number</label></td>
+                                    <td><input type="number" step="1" min="1" max="28" value="@session.DayNumber" class=" form-control" /></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td><a href="#" class="text-danger font-weight-bold float-right" onclick="deleteSession_Clicked(this);">Delete</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    }
+                </div>
+                <div class="col-6" id="ActivityContainer">
+                    <h3 class="border-bottom">Activities</h3>
+                    @for (int sessionIndex = 0; sessionIndex < Model.Sessions?.Length; sessionIndex++)
+                    {
+                        <table class="table d-none activityForm">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Quantity</th>
+                                    <th>Sets</th>
+                                    <th>Rest</th>
+                                    <th></th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int activityIndex = 0; activityIndex < Model.Sessions?[sessionIndex].Activities?.Length; activityIndex++)
+                                {
+                                    WorkoutActivity activity = Model.Sessions[sessionIndex].Activities[activityIndex];
+                                <tr>
+                                    <td><input type="text" class="form-control" value="@activity.Name"/></td>
+                                    <td><input type="text" class="form-control" value="@activity.Quantity"/></td>
+                                    <td><input type="number" min="1" step="1" class="form-control" value="@activity.Sets"/></td>
+                                    <td><input type="number" min="0" max="120" step="1" class="form-control" value="@activity.RestPeriodSeconds"/></td>
+                                    <td><a href="#" class="text-danger font-weight-bold" onclick="deleteActivity_Clicked(this)">Remove</a></td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    <a id="AddActivityButton" href="#" class="font-weight-bold d-none float-right" onclick="addActivity_Clicked();">+Add Activity</a>
+
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">   
+            <div class="float-right">
+                <input type="submit" class="btn btn-primary" value="Save" />
+                <a asp-controller="Workout" asp-action="Summary" class="btn btn-danger">Cancel</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+<table id="SessionTemplate" class="d-none sessionForm table table-borderless">
+    <tbody>
+        <tr>
+            <td><label>Name</label></td>
+            <td><input type="text" value="New Session" class="sessionNameInput form-control" oninput="sessionName_Input(this)"/></td>
+        </tr>
+        <tr>
+            <td><label>Day Number</label></td>
+            <td><input type="number" step="1" min="1" max="28" value="1" class="sessionDayInput form-control" /></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><a href="#" class="text-danger font-weight-bold float-right" onclick="deleteSession_Clicked(this);">Delete</a></td>
+        </tr>
+    </tbody>
+</table>
+
+<table id="ActivityTemplate" class="table d-none activityForm">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Sets</th>
+            <th>Rest</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<table class="d-none">
+    <tbody>
+        <tr id="ActivityRowTemplate">
+            <td><input type="text" class="form-control"/></td>
+            <td><input type="text" class="form-control"/></td>
+            <td><input type="number" min="1" step="1" class="form-control"/></td>
+            <td><input type="number" min="0" max="120" step="1" class="form-control"/></td>
+            <td><a href="#" class="text-danger font-weight-bold" onclick="deleteActivity_Clicked(this)">Remove</a></td>
+        </tr>
+    </tbody>
+</table>
+
+<ul id="SessionListTemplate" class="d-none">
+    <li class="list-group-item" style="cursor:pointer;" onclick="sessionListItem_Clicked(this);"></li>
+
+</ul>
