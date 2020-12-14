@@ -1,10 +1,61 @@
-﻿
+﻿@model WorkoutPlan[]
+
 @{
     ViewData["Title"] = "Workout Plans";
 }
 
+<style>
+    .sessionList li:hover {
+        background-color: var(--primary);
+        color: white;
+        font-weight: bold;
+        transition: background-color linear 0.5s;
+    }
+
+    .sessionList li:hover a{
+        color:white;
+    }
+
+    .sessionList li a{
+        text-decoration:none;
+    }
+</style>
+
 <div>
-    <h2 class="d-inline">Workout Plans</h2>
-    <a asp-controller="Workout" asp-action="Create" class="font-weight-bold ml-1" style="vertical-align:text-bottom">+New Workout</a>
+    <div class="mb-3">
+        <h2 class="d-inline">Workout Plans</h2>
+        <a asp-controller="Workout" asp-action="Create" class="font-weight-bold ml-1" style="vertical-align:text-bottom">+New Workout</a>
+    </div>
+
+
+    <div class="row">
+
+        @foreach (WorkoutPlan plan in Model)
+        {
+
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-header"><h4 class="my-0">@plan.Name</h4></div>
+                    <div class="card-body">
+                        <ul class="list-group sessionList">
+                            @for(int i = 0;i< plan.Sessions.Length;i++)
+                            {
+                                WorkoutSession session = plan.Sessions[i];
+                                <li class="list-group-item" style="cursor:pointer;" onclick="$(this).find('a')[0].click()">
+                                    <a asp-action="Session" asp-route-PlanID="@plan.ID" asp-route-SessionIndex="@i">@session.Name <span class="float-right text-white font-weight-normal" style="user-select:none;">Start Session</span></a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+
+                        <a asp-action="Edit" asp-route-id="@plan.ID" class="btn btn-primary float-right">Edit</a>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
 
 </div>

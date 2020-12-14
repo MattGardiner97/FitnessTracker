@@ -29,9 +29,12 @@ namespace FitnessTracker.Controllers
             return await userManager.GetUserAsync(User);
         }
 
-        public IActionResult Summary()
+        public async Task<IActionResult> Summary()
         {
-            return View();
+            FitnessUser currentUser = await GetUser();
+            WorkoutPlan[] plans = await dbContext.WorkoutPlans.Where(plan => plan.User == currentUser).ToArrayAsync();
+
+            return View(plans);
         }
 
         [HttpGet]
@@ -66,6 +69,18 @@ namespace FitnessTracker.Controllers
             await dbContext.SaveChangesAsync();
 
             return RedirectToAction("Summary");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Session(long PlanID, int SessionIndex)
+        {
+            FitnessUser currentUser = await GetUser();
+            WorkoutPlan plan = await dbContext.WorkoutPlans.FirstOrDefaultAsync(plan => plan.ID == PlanID && plan.User == currentUser);
+            if (plan == null || SessionIndex < 0 || SessionIndex >= plan.Sessions.Length)
+                return BadRequest();
+
+            WorkoutSession session = plan.Sessions[SessionIndex];
+            return View(session);
         }
     }
 }

@@ -1,0 +1,72 @@
+﻿@model WorkoutSession
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+@section Scripts{
+    <script src="~/js/Workout/session.js"></script>
+}
+
+<style>
+    .downwardsFade {
+        transform: translateY(100px);
+        opacity: 0%;
+        transition: opacity linear 0.1s, transform linear 0.1s;
+    }
+</style>
+
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="my-0">@Model.Name</h2>
+    </div>
+    <div class="card-body">
+
+        <div class="w-50 mx-auto mb-3">
+            <h1 id="WorkoutTime" class="text-center" style="font-size:5rem;">00:00</h1>
+            <button id="StartWorkoutButton" type="button" class="btn btn-primary d-block mx-auto" onclick="startWorkout_Clicked();">Start</button>
+            <div class="d-none mx-auto" id="PauseStopDiv">
+                <button id="PauseWorkoutButton" type="button" class="btn btn-primary d-inline mx-auto" onclick="pauseWorkout_Clicked()">Pause</button>
+                <button id="StopWorkoutButton" type="button" class="btn btn-danger d-inline mx-auto" onclick="stopWorkout_Clicked();">Stop</button>
+            </div>
+
+        </div>
+
+        <table class="table" style="width:80%;margin:auto;">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Activity</th>
+                    <th>Quantity</th>
+                    <th>Sets</th>
+                    <th>Rest</th>
+                    <th style="width:10%"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (WorkoutActivity activity in Model.Activities)
+                {
+                    <tr>
+                        <td class="align-middle"><input type="checkbox" class="form-control" style="font-size:0.75rem;" /></td>
+                        <td class="align-middle">@activity.Name</td>
+                        <td class="align-middle">@activity.Quantity</td>
+                        <td class="align-middle">@activity.Sets</td>
+                        <td class="align-middle">@(activity.RestPeriodSeconds) seconds</td>
+                        @if (activity.RestPeriodSeconds != 0)
+                        {
+                            <td>
+                                <button type="button"
+                                        class="btn btn-primary w-100"
+                                        data-RestPeriod="@activity.RestPeriodSeconds"
+                                        onclick="startRest_Clicked(this)">
+                                    Start Rest
+                                </button>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
