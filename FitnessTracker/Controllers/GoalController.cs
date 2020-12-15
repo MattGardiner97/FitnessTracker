@@ -23,14 +23,18 @@ namespace FitnessTracker.Controllers
         {
             dbContext = DBContext;
             userManager = UserManager;
+        }
 
-
+        [NonAction]
+        public async Task<FitnessUser> GetUser()
+        {
+            return await userManager.GetUserAsync(HttpContext.User);
         }
 
         [HttpGet]
         public async Task<IActionResult> Summary()
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
             Goal[] goals = await dbContext.Goals.Where(goal => goal.User == currentUser).ToArrayAsync();
 
@@ -40,21 +44,18 @@ namespace FitnessTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> AddGoal()
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
             WeightliftingGoal model = new WeightliftingGoal()
             {
-                ID = 0,
-                User = currentUser
+                ID = 0
             };
-
 
             return View("editgoal", model);
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditGoal(int ID)
+        public async Task<IActionResult> EditGoal(long ID)
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
             Goal goal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == ID && goal.User == currentUser);
             if (goal == null)
@@ -66,7 +67,7 @@ namespace FitnessTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteGoal(int ID)
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
             Goal goal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == ID && goal.User == currentUser);
             if (goal == null)
@@ -80,75 +81,90 @@ namespace FitnessTracker.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditGoal(int ID, string Activity, string Type, float Weight, int Reps, int Hours, int Minutes, int Seconds, float Quantity, string QuantityUnit)
+        public async Task<IActionResult> EditGoal(EditGoalInputModel GoalInput)
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
-
-            Goal existingGoal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == ID && goal.User == currentUser);
-            if (existingGoal != null)
-                dbContext.Goals.Remove(existingGoal); //We remove the entry in case the Goal subtype has been changed.
-            else
-            {
-                if (ID != 0)
-                    return BadRequest(); //This means a client is trying to edit a goal which either doesn't exist or doesn't belong to them.
-            }
-
-            Goal goal = null;
-            if (Type == "Weightlifting")
-                goal = new WeightliftingGoal()
-                {
-                    Reps = Reps,
-                    Weight = Weight
-                };
-            else if (Type == "Timed")
-                goal = new TimedGoal()
-                {
-                    Quantity = (int)Quantity,
-                    QuantityUnit = QuantityUnit,
-                    Time = new TimeSpan(Hours, Minutes, Seconds)
-                };
-            else
+            if (TryValidateModel(GoalInput) == false)
                 return BadRequest();
 
-            goal.Activity = Activity;
-            goal.User = currentUser;
+            FitnessUser currentUser = await GetUser();
 
-            dbContext.Goals.Add(goal);
+            if (GoalInput.ID != 0)
+            {
+                Goal existingGoal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == GoalInput.ID && goal.User == currentUser);
+                switch (existingGoal)
+                {
+                    case WeightliftingGoal wGoal:
+                        wGoal.Reps = GoalInput.Reps;
+                        wGoal.Weight = GoalInput.Weight;
+                        break;
+                    case TimedGoal tGoal:
+                        tGoal.Quantity = (int)GoalInput.Quantity;
+                        tGoal.QuantityUnit = GoalInput.QuantityUnit;
+                        tGoal.Time = new TimeSpan(GoalInput.Hours, GoalInput.Minutes, GoalInput.Seconds);
+                        break;
+                }
+                existingGoal.Activity = GoalInput.Activity;
+                dbContext.Goals.Update(existingGoal);
+            }
+            else
+            {
+                Goal newGoal = null;
+                if (GoalInput.Type.ToLower() == "weightlifting")
+                {
+                    newGoal = new WeightliftingGoal()
+                    {
+                        Weight = GoalInput.Weight,
+                        Reps = GoalInput.Reps
+                    };
+                }
+                else if (GoalInput.Type.ToLower() == "timed")
+                {
+                    newGoal = new TimedGoal()
+                    {
+                        Quantity = (int)GoalInput.Quantity,
+                        QuantityUnit = GoalInput.QuantityUnit,
+                        Time = new TimeSpan(GoalInput.Hours, GoalInput.Minutes, GoalInput.Seconds)
+                    };
+                }
+                newGoal.Activity = GoalInput.Activity;
+                newGoal.User = currentUser;
+                dbContext.Goals.Add(newGoal);
+            }
             await dbContext.SaveChangesAsync();
 
             return RedirectToAction("Summary");
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddProgress(int GoalID, string Type, DateTime Date, float Weight, int Reps, int Quantity, int Hours, int Minutes, int Seconds)
+        public async Task<IActionResult> AddProgress(AddGoalProgressInputModel Progress)
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
-            Goal goal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == GoalID && goal.User == currentUser);
+            Goal goal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == Progress.GoalID && goal.User == currentUser);
             if (goal == null)
                 return BadRequest();
 
-            switch (Type.ToLower())
+            switch (Progress.Type.ToLower())
             {
                 case "weightlifting":
                     WeightliftingProgress wp = new WeightliftingProgress()
                     {
-                        Date = Date,
+                        Date = Progress.Date,
                         Goal = goal,
                         User = currentUser,
-                        Weight = Weight,
-                        Reps = Reps
+                        Weight = Progress.Weight,
+                        Reps = Progress.Reps
                     };
                     dbContext.WeightliftingProgressRecords.Add(wp);
                     break;
                 case "timed":
                     TimedProgress tp = new TimedProgress()
                     {
-                        Date = Date,
+                        Date = Progress.Date,
                         Goal = goal,
                         User = currentUser,
-                        Time = new TimeSpan(Hours, Minutes, Seconds),
-                        Quantity = Quantity
+                        Time = new TimeSpan(Progress.Hours, Progress.Minutes, Progress.Seconds),
+                        Quantity = Progress.Quantity
                     };
                     dbContext.TimedProgressRecords.Add(tp);
                     break;
@@ -158,13 +174,13 @@ namespace FitnessTracker.Controllers
 
             await dbContext.SaveChangesAsync();
 
-            return RedirectToAction("ViewGoal", new { ID = GoalID });
+            return RedirectToAction("ViewGoal", new { ID = Progress.GoalID });
         }
 
         [HttpGet]
         public async Task<IActionResult> ViewGoal(long ID)
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
             Goal goal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == ID && goal.User == currentUser);
             if (goal == null)
@@ -190,10 +206,10 @@ namespace FitnessTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetWeightliftingProgress(long GoalID)
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
-            Goal targetGoal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == GoalID);
-            if (targetGoal.User != currentUser)
+            Goal targetGoal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == GoalID && goal.User == currentUser);
+            if (targetGoal == null)
                 return BadRequest();
 
             var progress = await dbContext.WeightliftingProgressRecords
@@ -208,7 +224,19 @@ namespace FitnessTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetTimedProgress(long GoalID)
         {
-            return BadRequest();
+            FitnessUser currentUser = await GetUser();
+
+            Goal targetGoal = await dbContext.Goals.FirstOrDefaultAsync(Goal => Goal.ID == GoalID && Goal.User == currentUser);
+            if (targetGoal == null)
+                return BadRequest();
+
+            var progress = await dbContext.TimedProgressRecords
+                .Where(record => record.Goal.ID == GoalID)
+                .OrderBy(record => record.Date)
+                .Select(record => new { Date = record.Date.ToString("d"), Timespan = record.Time, Quantity = record.Quantity, QuantityUnit=record.QuantityUnit})
+                .ToArrayAsync();
+
+            return Json(progress);
         }
     }
 }

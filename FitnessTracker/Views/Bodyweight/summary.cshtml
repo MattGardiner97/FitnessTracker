@@ -10,7 +10,7 @@
 
     string FormatWeight(double D)
     {
-        //Added this because of D = 0 results in "-+0.00kg". Most likely a floating point precision issue.
+        //Added this because D = 0 results in "-+0.00kg". Most likely a floating point precision issue.
         if (D == -0)
             D = 0;
 
@@ -30,7 +30,7 @@
 {
     <div class="row">
         <div class="col-3">
-            <div class="alert alert-info mt-2">
+            <div class="alert alert-info mt-3 mb-2">
                 <h5 class="ml-3">Add Today's Weight</h5>
 
                 <form asp-action="AddTodayWeight" method="post" class="ml-3 mr-3">
@@ -49,7 +49,7 @@
     <div class="col">
         <div class="card mheight-100">
             <div class="card-header py-3">
-                <h6 class="card-subtitle">Most Recent Bodyweight</h6>
+                <h5 class="card-subtitle">Most Recent Bodyweight</h5>
             </div>
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
@@ -69,7 +69,7 @@
     <div class="col">
         <div class="card mb-2">
             <div class="card-header py-3">
-                <h6 class="card-subtitle">This Week's Progress</h6>
+                <h5 class="card-subtitle">This Week's Progress</h5>
             </div>
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
@@ -81,7 +81,7 @@
         </div>
         <div class="card">
             <div class="card-header py-3">
-                <h6 class="card-subtitle">Daily Average (This Week)</h6>
+                <h5 class="card-subtitle">Daily Average (This Week)</h5>
             </div>
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
@@ -96,7 +96,7 @@
     <div class="col">
         <div class="card mb-2">
             <div class="card-header py-3">
-                <h6 class="card-subtitle">Current Month's Progress</h6>
+                <h5 class="card-subtitle">Current Month's Progress</h5>
             </div>
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
@@ -108,7 +108,7 @@
         </div>
         <div class="card">
             <div class="card-header py-3">
-                <h6 class="card-subtitle">Daily Average (This Month)</h6>
+                <h5 class="card-subtitle">Daily Average (This Month)</h5>
             </div>
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
@@ -123,7 +123,7 @@
     <div class="col">
         <div class="card mb-2">
             <div class="card-header py-3">
-                <h6 class="card-subtitle">All Time Progress</h6>
+                <h5 class="card-subtitle">All Time Progress</h5>
             </div>
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
@@ -135,7 +135,7 @@
         </div>
         <div class="card">
             <div class="card-header py-3">
-                <h6 class="card-subtitle">Weekly Average (All Time)</h6>
+                <h5 class="card-subtitle">Weekly Average (All Time)</h5>
             </div>
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
@@ -154,7 +154,7 @@
         <div class="card mheight-100">
             <div class="card-header py-3">
 
-                <h6 class="card-subtitle d-">Target Bodyweight <i class="far fa-edit float-right" style="cursor:pointer" data-toggle="modal" data-target="#TargetModal">Edit</i></h6>
+                <h5 class="card-subtitle d-">Target Bodyweight <i class="far fa-edit float-right" style="cursor:pointer" data-toggle="modal" data-target="#TargetModal">Edit</i></h5>
             </div>
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
@@ -169,7 +169,7 @@
     <div class="col">
         <div class="card mheight-100">
             <div class="card-header py-3">
-                <h6 class="card-subtitle">Distance to Target</h6>
+                <h5 class="card-subtitle">Distance to Target</h5>
             </div>
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
@@ -183,7 +183,7 @@
     <div class="col">
         <div class="card mheight-100">
             <div class="card-header py-3">
-                <h6 class="card-subtitle">Daily Progress Needed</h6>
+                <h5 class="card-subtitle">Daily Progress Needed</h5>
             </div>
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">
@@ -197,7 +197,7 @@
     <div class="col">
         <div class="card mheight-100">
             <div class="card-header py-3">
-                <h6 class="card-subtitle">Weekly Progress Needed</h6>
+                <h5 class="card-subtitle">Weekly Progress Needed</h5>
             </div>
             <div class="card-body d-flex align-items-center">
                 <div class="w-100">

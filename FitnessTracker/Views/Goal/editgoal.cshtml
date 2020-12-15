@@ -33,21 +33,21 @@
 
 <div class="container w-25 ml-2">
     <form asp-controller="Goal" asp-action="EditGoal" method="post">
-        <input type="hidden" name="ID" value="@id" />
+        <input type="hidden" Name="GoalInput.ID" value="@id" />
 
         <div class="form-group">
             <label class="font-weight-bold">Activity</label>
-            <input type="text" name="Activity" class="form-control" value="@activity" />
+            <input type="text" Name="GoalInput.Activity" class="form-control" value="@activity" />
         </div>
 
         <div class="form-group">
             <label class="font-weight-bold">Type</label>
             <div class="form-group form-inline">
-                <input type="radio" id="WeightliftingRadio" name="Type" value="Weightlifting" class="form-control form-check mr-1" oninput="typeRadio_Changed();"
+                <input type="radio" id="WeightliftingRadio" Name="GoalInput.Type" value="Weightlifting" class="form-control form-check mr-1" oninput="typeRadio_Changed();"
                        @(isWeightliftingGoal ? "checked" : "") />
                 <label>Weightlifting</label>
 
-                <input type="radio" id="TimedRadio" name="Type" value="Timed" class="form-control form-check mr-1 ml-3" oninput="typeRadio_Changed();"
+                <input type="radio" id="TimedRadio" Name="GoalInput.Type" value="Timed" class="form-control form-check mr-1 ml-3" oninput="typeRadio_Changed();"
                        @(isTimedGoal ? "checked" : "") />
                 <label>Timed</label>
             </div>
@@ -56,11 +56,11 @@
         <div id="WeightliftingGroup" class="form-group">
             <div class="form-group">
                 <label class="font-weight-bold">Weight</label>
-                <input type="number" name="Weight" min="0" step="1" class="form-control" value="@weight" />
+                <input type="number" Name="GoalInput.Weight" min="0" step="1" class="form-control" value="@weight" />
             </div>
             <div class="form-group">
                 <label class="font-weight-bold">Reps</label>
-                <input type="number" name="Reps" min="0" step="1" class="form-control" value="@reps" />
+                <input type="number" Name="GoalInput.Reps" min="0" step="1" class="form-control" value="@reps" />
             </div>
         </div>
 
@@ -69,17 +69,17 @@
                 <label class="font-weight-bold">Time</label>
 
                 <div class="d-flex">
-                    <input type="number" min="0" max="24" step="1" name="Hours" class="form-control flex-grow-1" placeholder="Hours" value="@timespan.Hours" />
-                    <input type="number" min="0" max="60" step="1" name="Minutes" class="form-control flex-grow-1" placeholder="Minutes" value="@timespan.Minutes" />
-                    <input type="number" min="0" max="60" step="1" name="Seconds" class="form-control flex-grow-1" placeholder="Seconds" value="@timespan.Seconds" />
+                    <input type="number" min="0" max="24" step="1" Name="GoalInput.Hours" class="form-control flex-grow-1" placeholder="Hours" value="@timespan.Hours" />
+                    <input type="number" min="0" max="60" step="1" Name="GoalInput.Minutes" class="form-control flex-grow-1" placeholder="Minutes" value="@timespan.Minutes" />
+                    <input type="number" min="0" max="60" step="1" Name="GoalInput.Seconds" class="form-control flex-grow-1" placeholder="Seconds" value="@timespan.Seconds" />
                 </div>
 
             </div>
             <div class="form-group">
                 <label class="font-weight-bold">Quantity</label>
                 <div class="d-flex">
-                    <input type="number" min="0" step="1" name="Quantity" placeholder="Quantity" class="form-control flex-grow-1" value="@quantity" />
-                    <input type="text" name="QuantityUnit" placeholder="Unit" class="form-control flex-grow-1" value="@quantityUnit" />
+                    <input type="number" min="0" step="1" Name="GoalInput.Quantity" placeholder="Quantity" class="form-control flex-grow-1" value="@quantity" />
+                    <input type="text" Name="GoalInput.QuantityUnit" placeholder="Unit" class="form-control flex-grow-1" value="@quantityUnit" />
                 </div>
             </div>
         </div>

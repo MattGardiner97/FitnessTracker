@@ -25,7 +25,11 @@
     <div class="col">
         <div class="card">
             <div class="card-header">
-                <h4>@Model.Goal.Activity</h4>
+                <h4 class="d-inline">@Model.Goal.Activity</h4>
+                <button type="button" class="btn btn-secondary dropdown-toggle float-right" data-toggle="dropdown">Options</button>
+                <div class="dropdown-menu">
+                    <a asp-action="EditGoal" asp-route-ID="@Model.Goal.ID" class="dropdown-item">Edit</a>
+                </div>
             </div>
             <div class="card-body">
                 <div class="row">

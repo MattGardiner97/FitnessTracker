@@ -53,6 +53,9 @@ namespace FitnessTracker.Controllers
         [HttpPost]
         public async Task<IActionResult> EditTarget(float TargetWeight, DateTime TargetDate)
         {
+            if (TargetWeight <= 0 || TargetWeight >= 200 || TargetDate <= DateTime.Today)
+                return BadRequest();
+
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
 
 
@@ -83,8 +86,6 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
 
-
-
             BodyweightRecord[] records = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).OrderByDescending(record => record.Date).ToArrayAsync();
 
             return View(records);
@@ -93,8 +94,16 @@ namespace FitnessTracker.Controllers
         [HttpPost]
         public async Task<IActionResult> EditRecords(DateTime[] Dates, float[] Weights)
         {
+            if (Dates == null || Weights == null)
+                return BadRequest();
             if (Dates.Length != Weights.Length)
                 return BadRequest();
+
+            for(int i = 0; i < Dates.Length;i++)
+            {
+                if (Weights[i] <= 0 || Weights[i] >= 200)
+                    return BadRequest();
+            }
 
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
 
@@ -120,6 +129,9 @@ namespace FitnessTracker.Controllers
         [HttpPost]
         public async Task<IActionResult> AddTodayWeight(float Weight)
         {
+            if (Weight <= 0 || Weight >= 200)
+                return BadRequest();
+
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
 
             BodyweightRecord newRecord = new BodyweightRecord()

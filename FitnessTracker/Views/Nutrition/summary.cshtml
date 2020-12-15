@@ -36,9 +36,11 @@
     <script src="~/js/Nutrition/summary.js"></script>
 }
 
-<h1>Nutrition Summary</h1>
+<div class="mb-3">
+    <h2 class="d-inline">Nutrition Summary</h2>
+    <a asp-controller="Nutrition" asp-action="AddFood" class="font-weight-bold mb-3">+Add Food</a>
+</div>
 
-<a asp-controller="Nutrition" asp-action="AddFood" class="btn btn-primary mb-3">Add Food</a>
 
 <div id="MonthGraphData" class="d-none">
 
