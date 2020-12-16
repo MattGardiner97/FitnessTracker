@@ -35,7 +35,7 @@
 
                 <form asp-action="AddTodayWeight" method="post" class="ml-3 mr-3">
                     <div class="input-group form-inline ">
-                        <input type="number" min="0" max="200" name="Weight" step="1" class="form-control mr-1" />
+                        <input type="number" min="0" max="200" name="Weight" step="0.1" class="form-control mr-1" required />
                         <input type="submit" value="Save" class="btn btn-primary" />
                     </div>
                 </form>
@@ -241,7 +241,7 @@
 
                     <div class="form-group">
                         <label>Weight</label>
-                        <input class="form-control" name="TargetWeight" type="number" min="1" max="300" />
+                        <input class="form-control" name="TargetWeight" type="number" min="1" max="300" required/>
                     </div>
 
                     <div class="form-group">
