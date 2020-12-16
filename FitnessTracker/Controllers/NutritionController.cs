@@ -74,6 +74,9 @@ namespace FitnessTracker.Controllers
         [HttpPost]
         public async Task<IActionResult> EditRecords(DateTime Date, long[] FoodIDs, float[] Quantities)
         {
+            if (FoodIDs.Length != Quantities.Length || FoodIDs.Length == 0)
+                return BadRequest();
+
             FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
 
             FoodRecord[] existingRecords = await dbContext.FoodRecords.Where(record => record.User == currentUser && record.ConsumptionDate == Date).ToArrayAsync();
@@ -141,8 +144,6 @@ namespace FitnessTracker.Controllers
                 .Where(record => record.ConsumptionDate >= DateTime.Today.AddDays(-PreviousDays) && record.User == currentUser)
                 .Include(record => record.Food)
                 .ToArrayAsync();
-
-
 
                 var result = records
                 .GroupBy(record => record.ConsumptionDate)
