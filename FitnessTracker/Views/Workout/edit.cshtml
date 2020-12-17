@@ -18,12 +18,12 @@
                 <div class="col-3 border-right">
                     <h3 class="border-bottom">Plan</h3>
 
-                    <input type="hidden" name="ID" value="@Model.ID" />
-                    <input type="hidden" id="SessionJSONInput" name="SessionsJSON" value="@Model.SessionsJSON" />
+                    <input type="hidden" name="ID" value="@Model.ID" required/>
+                    <input type="hidden" id="SessionJSONInput" name="SessionsJSON" value="@Model.SessionsJSON"/>
 
                     <div class="form-group form-inline">
                         <label class="mr-2">Name</label>
-                        <input type="text" name="Name" class="form-control" oninput="planName_Input(this);" value="@Model.Name" />
+                        <input type="text" name="Name" class="form-control" oninput="planName_Input(this);" value="@Model.Name" required />
                     </div>
 
 
@@ -45,11 +45,11 @@
                             <tbody>
                                 <tr>
                                     <td><label class="mr-2">Name</label></td>
-                                    <td><input type="text" value="@session.Name" class=" form-control" oninput="sessionName_Input(this)" /></td>
+                                    <td><input type="text" value="@session.Name" class=" form-control" oninput="sessionName_Input(this)" required /></td>
                                 </tr>
                                 <tr>
                                     <td><label class="mr-2">Day Number</label></td>
-                                    <td><input type="number" step="1" min="1" max="28" value="@session.DayNumber" class=" form-control" /></td>
+                                    <td><input type="number" step="1" min="1" max="28" value="@session.DayNumber" class=" form-control" required/></td>
                                 </tr>
                                 <tr>
                                     <td></td>
@@ -79,9 +79,9 @@
                                 {
                                     WorkoutActivity activity = Model.Sessions[sessionIndex].Activities[activityIndex];
                                 <tr>
-                                    <td><input type="text" class="form-control" value="@activity.Name"/></td>
-                                    <td><input type="text" class="form-control" value="@activity.Quantity"/></td>
-                                    <td><input type="number" min="1" step="1" class="form-control" value="@activity.Sets"/></td>
+                                    <td><input type="text" class="form-control" value="@activity.Name" required/></td>
+                                    <td><input type="text" class="form-control" value="@activity.Quantity" required/></td>
+                                    <td><input type="number" min="1" step="1" class="form-control" value="@activity.Sets" required/></td>
                                     <td><input type="number" min="0" max="120" step="1" class="form-control" value="@activity.RestPeriodSeconds"/></td>
                                     <td><a href="#" class="text-danger font-weight-bold" onclick="deleteActivity_Clicked(this)">Remove</a></td>
                                 </tr>
@@ -137,9 +137,9 @@
 <table class="d-none">
     <tbody>
         <tr id="ActivityRowTemplate">
-            <td><input type="text" class="form-control"/></td>
-            <td><input type="text" class="form-control"/></td>
-            <td><input type="number" min="1" step="1" class="form-control"/></td>
+            <td><input type="text" class="form-control" required/></td>
+            <td><input type="text" class="form-control" required/></td>
+            <td><input type="number" min="1" step="1" class="form-control" required/></td>
             <td><input type="number" min="0" max="120" step="1" class="form-control"/></td>
             <td><a href="#" class="text-danger font-weight-bold" onclick="deleteActivity_Clicked(this)">Remove</a></td>
         </tr>

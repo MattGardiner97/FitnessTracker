@@ -18,11 +18,10 @@
     {
         <div class="col-2 d-inline-block float-none" style="margin-right:-0.5rem;margin-left:-0.5rem">
             <div class="card" data-ID="@f.ID" data-Name="@f.Name" data-Carbs="@f.Carbohydrates" data-Protein="@f.Protein" data-Fat="@f.Fat" data-Calories="@f.Calories" data-ServingSize="@f.ServingSize" data-ServingUnit="@f.ServingUnit">
+                <div class="card-header">
+                    <h3 class="text-center mb-0">@f.Name</h3>
+                </div>
                 <div class="card-body">
-                    <h3 class="text-center">
-                        @f.Name
-                    </h3>
-
                     <h6 class="text-center font-weight-lighter">
                         @(f.ServingSize)@(f.ServingUnit.ToString())
                     </h6>
@@ -35,7 +34,7 @@
                     <button type="button" class="btn btn-primary" onclick="addFoodRecord(this);">Add</button>
                     <button type="button" class="btn btn-primary" onclick="setNewFoodFields(this);">Edit</button>
                     <form asp-controller="Nutrition" asp-action="DeleteFood" class="d-inline">
-                        <input type="hidden" value="@f.ID" name="ID" />
+                        <input type="hidden" value="@f.ID" name="ID" required />
                         <input type="submit" class="btn btn-danger" value="Delete" />
                     </form>
                 </div>
@@ -75,7 +74,7 @@
                     <input type="text" name="Name" class="form-control mr-4" id="newFoodName" required />
                 </td>
                 <td>
-                    <input type="number" name="ServingSize" class="form-control mr-4" id="newFoodSize" required />
+                    <input type="number" name="ServingSize" class="form-control mr-4" id="newFoodSize" min="0" required />
                 </td>
                 <td>
                     <select name="ServingUnit" class="form-control" required>
@@ -105,16 +104,16 @@
             </tr>
             <tr>
                 <td>
-                    <input type="number" name="Carbohydrates" class="form-control mr-4" id="newFoodCarbs" oninput="updateCalories();" value="0" required />
+                    <input type="number" name="Carbohydrates" class="form-control mr-4" id="newFoodCarbs" oninput="updateCalories();" min="0" value="0" required />
                 </td>
                 <td>
-                    <input type="number" name="Protein" class="form-control mr-4" id="newFoodProtein" oninput="updateCalories();" value="0" required />
+                    <input type="number" name="Protein" class="form-control mr-4" id="newFoodProtein" oninput="updateCalories();" min="0" value="0" required />
                 </td>
                 <td>
-                    <input type="number" name="Fat" class="form-control mr-4" id="newFoodFat" oninput="updateCalories();" value="0" required />
+                    <input type="number" name="Fat" class="form-control mr-4" id="newFoodFat" oninput="updateCalories();" min="0" value="0" required />
                 </td>
                 <td>
-                    <input type="number" name="Calories" class="form-control  mr-4" id="newFoodCalories" value="0" required />
+                    <input type="number" name="Calories" class="form-control  mr-4" id="newFoodCalories" min="0" value="0" required />
                 </td>
             </tr>
         </tbody>
@@ -176,7 +175,7 @@
                         <input type="hidden" class="recordID" value="@record.FoodID" name="FoodIDs[@i]" />
                         <input type="text" class="recordName" value="@record.Food.Name" disabled />
                     </td>
-                    <td><input type="number" class="recordQuantity" min="0" step="0.1" value="@record.Quantity" name="Quantities[@i]" /></td>
+                    <td><input type="number" class="recordQuantity" min="0" step="0.1" value="@record.Quantity" name="Quantities[@i]" required /></td>
                     <td><input type="number" class="recordCarbs" value="@record.Food.Carbohydrates" disabled /></td>
                     <td><input type="number" class="recordProtein" value="@record.Food.Protein" disabled /></td>
                     <td><input type="number" class="recordFat" value="@record.Food.Fat" disabled /></td>
