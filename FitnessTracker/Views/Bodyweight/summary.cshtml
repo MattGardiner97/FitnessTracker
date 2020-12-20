@@ -241,12 +241,12 @@
 
                     <div class="form-group">
                         <label>Weight</label>
-                        <input class="form-control" name="TargetWeight" type="number" min="1" max="300" required/>
+                        <input class="form-control" name="TargetWeight" type="number" min="1" max="300" value="@Model.Target.TargetWeight" required/>
                     </div>
 
                     <div class="form-group">
                         <label>Target Date</label>
-                        <input class="form-control" name="TargetDate" type="date" />
+                        <input class="form-control" name="TargetDate" type="date" value="@Model.Target.TargetDate.ToString("yyyy-MM-dd")" />
                     </div>
 
                 </div>

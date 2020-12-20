@@ -37,14 +37,23 @@ namespace FitnessTracker.ViewModels
             CurrentMonthRecords = AllRecords.Where(record => record.Date >= DateTime.Today.AddDays(-28));
             CurrentWeekRecords = CurrentMonthRecords.Where(record => record.Date >= DateTime.Today.AddDays(-7));
 
-            CurrentWeekProgress = CurrentWeekRecords.First().Weight - CurrentWeekRecords.Last().Weight;
-            CurrentWeekAverage = CurrentWeekProgress / 7;
+            if (CurrentWeekRecords.Count() != 0)
+            {
+                CurrentWeekProgress = CurrentWeekRecords.First().Weight - CurrentWeekRecords.Last().Weight;
+                CurrentWeekAverage = CurrentWeekProgress / 7;
+            }
 
-            CurrentMonthProgress = CurrentMonthRecords.First().Weight - CurrentMonthRecords.Last().Weight;
-            CurrentMonthAverage = CurrentMonthProgress / 28;
+            if (CurrentMonthRecords.Count() != 0)
+            {
+                CurrentMonthProgress = CurrentMonthRecords.First().Weight - CurrentMonthRecords.Last().Weight;
+                CurrentMonthAverage = CurrentMonthProgress / 28;
+            }
 
-            AllTimeProgress = AllRecords.First().Weight - AllRecords.Last().Weight;
-            AllTimeAverage = AllTimeProgress / ((float)(AllRecords.First().Date - AllRecords.Last().Date).TotalDays) * 7;
+            if (AllRecords.Count() != 0)
+            {
+                AllTimeProgress = AllRecords.First().Weight - AllRecords.Last().Weight;
+                AllTimeAverage = AllTimeProgress / ((float)(AllRecords.First().Date - AllRecords.Last().Date).TotalDays) * 7;
+            }
 
             if (Target == null)
                 return;

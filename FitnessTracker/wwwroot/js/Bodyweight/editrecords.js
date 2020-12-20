@@ -67,13 +67,16 @@ function formPreSubmit() {
         window.alert("Please fix all errors before submitting.");
         return false;
     }
+    updateInputNames();
+}
 
+function formSubmit_Clicked() {
     $("#FormTableBody").find("tr").last().remove();
     $("#inputRowTemplate").remove();
-    updateInputNames();
 }
 
 $(document).ready(function () {
     addNewInputRow();
     $("#FormTableBody").find("input[type=date]").last().val(getDateString(new Date()));
+    checkConflictingDates();
 })

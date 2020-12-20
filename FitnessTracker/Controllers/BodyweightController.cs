@@ -16,24 +16,26 @@ namespace FitnessTracker.Controllers
     [Authorize]
     public class BodyweightController : Controller
     {
-        private ApplicationDbContext dbContext;
+        private IBodyweightStorageService storageService;
         private UserManager<FitnessUser> userManager;
 
-        public BodyweightController(ApplicationDbContext DBContext, UserManager<FitnessUser> UserManager)
+        public BodyweightController(IBodyweightStorageService StorageService, UserManager<FitnessUser> UserManager)
         {
-            dbContext = DBContext;
-            userManager = UserManager;
+            this.storageService = StorageService;
+            this.userManager = UserManager;
+        }
+
+        private async Task<FitnessUser> GetUser()
+        {
+            return await userManager.GetUserAsync(HttpContext.User);
         }
 
         public async Task<IActionResult> Summary()
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
-            IEnumerable<BodyweightRecord> records = await dbContext.BodyweightRecords
-                .Where(record => record.User == currentUser)
-                .OrderByDescending(record => record.Date)
-                .ToArrayAsync();
-            BodyweightTarget target = await dbContext.BodyweightTargets.FirstOrDefaultAsync(target => target.User == currentUser);
+            IEnumerable<BodyweightRecord> records = await storageService.GetBodyweightRecords(currentUser);
+            BodyweightTarget target = await storageService.GetBodyweightTarget(currentUser);
 
             BodyweightSummaryViewModel viewModel = new BodyweightSummaryViewModel(records, target);
 
@@ -43,9 +45,9 @@ namespace FitnessTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> EditTarget()
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
-            BodyweightTarget target = await dbContext.BodyweightTargets.Where(target => target.User == currentUser).FirstOrDefaultAsync();
+            BodyweightTarget target = await storageService.GetBodyweightTarget(currentUser);
 
             return View(target);
         }
@@ -56,27 +58,20 @@ namespace FitnessTracker.Controllers
             if (TargetWeight <= 0 || TargetWeight >= 200 || TargetDate <= DateTime.Today)
                 return BadRequest();
 
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
 
-            BodyweightTarget newTarget = await dbContext.BodyweightTargets.Where(target => target.User == currentUser).FirstOrDefaultAsync();
+            BodyweightTarget newTarget = await storageService.GetBodyweightTarget(currentUser);
             if (newTarget == null)
             {
                 newTarget = new BodyweightTarget()
                 {
-                    User = currentUser,
-                    TargetWeight = TargetWeight,
-                    TargetDate = TargetDate
+                    User = currentUser
                 };
-                dbContext.BodyweightTargets.Add(newTarget);
             }
-            else
-            {
-                newTarget.TargetWeight = TargetWeight;
-                newTarget.TargetDate = TargetDate;
-                dbContext.BodyweightTargets.Update(newTarget);
-            }
-            await dbContext.SaveChangesAsync();
+            newTarget.TargetWeight = TargetWeight;
+            newTarget.TargetDate = TargetDate;
+            await storageService.StoreBodyweightTarget(newTarget);
 
             return RedirectToAction("Summary");
         }
@@ -84,9 +79,9 @@ namespace FitnessTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> EditRecords()
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
-            BodyweightRecord[] records = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).OrderByDescending(record => record.Date).ToArrayAsync();
+            BodyweightRecord[] records = await storageService.GetBodyweightRecords(currentUser);
 
             return View(records);
         }
@@ -99,18 +94,17 @@ namespace FitnessTracker.Controllers
             if (Dates.Length != Weights.Length)
                 return BadRequest();
 
-            for(int i = 0; i < Dates.Length;i++)
+            for (int i = 0; i < Dates.Length; i++)
             {
                 if (Weights[i] <= 0 || Weights[i] >= 200)
                     return BadRequest();
             }
 
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
-            BodyweightRecord[] existingRecords = await dbContext.BodyweightRecords.Where(record => record.User == currentUser).ToArrayAsync();
-            dbContext.BodyweightRecords.RemoveRange(existingRecords);
+            await storageService.DeleteExistingRecords(currentUser);
 
-
+            BodyweightRecord[] records = new BodyweightRecord[Dates.Length];
             for (int i = 0; i < Dates.Length; i++)
             {
                 BodyweightRecord newRecord = new BodyweightRecord()
@@ -119,10 +113,10 @@ namespace FitnessTracker.Controllers
                     Date = Dates[i],
                     Weight = Weights[i]
                 };
-                dbContext.BodyweightRecords.Add(newRecord);
+                records[i] = newRecord;
             }
 
-            await dbContext.SaveChangesAsync();
+            await storageService.StoreBodyweightRecords(records);
             return RedirectToAction("Summary");
         }
 
@@ -132,7 +126,7 @@ namespace FitnessTracker.Controllers
             if (Weight <= 0 || Weight >= 200)
                 return BadRequest();
 
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
             BodyweightRecord newRecord = new BodyweightRecord()
             {
@@ -141,20 +135,16 @@ namespace FitnessTracker.Controllers
                 Weight = Weight
             };
 
-            dbContext.BodyweightRecords.Add(newRecord);
-            await dbContext.SaveChangesAsync();
+            await storageService.StoreBodyweightRecord(newRecord);
             return RedirectToAction("Summary");
         }
 
         [HttpGet]
         public async Task<IActionResult> GetBodyweightData(int PreviousDays)
         {
-            FitnessUser currentUser = await userManager.GetUserAsync(HttpContext.User);
+            FitnessUser currentUser = await GetUser();
 
-            var records = await dbContext.BodyweightRecords
-                .Where(record => record.User == currentUser && record.Date >= DateTime.Today.AddDays(-PreviousDays))
-                .OrderBy(record => record.Date)
-                .ToArrayAsync();
+            BodyweightRecord[] records = await storageService.GetBodyweightRecords(currentUser, true);
 
             var result = records.Select(record => new { Date = record.Date.ToString("d"), Weight = record.Weight }).ToArray();
 

@@ -41,6 +41,8 @@ namespace FitnessTracker
             //    .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            services.AddTransient<IBodyweightStorageService, BodyweightEFStorageService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
