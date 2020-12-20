@@ -8,75 +8,104 @@
     return year + "-" + month + "-" + day;
 }
 
-function addNewInputRow() {
-    //Show remove button on existing last row
-    $("#FormTableBody").find("a").last().removeClass("d-none");
-
-    var newRowClone = $("#inputRowTemplate").clone();
-    newRowClone.attr("id", null);
-    newRowClone.removeClass("d-none");
-
-    var lastDateValue = $("#FormTableBody").find("input[type=date]").last().val();
-
-    var newDateValue = new Date(lastDateValue);
-    newDateValue.setDate(newDateValue.getDate() - 1);
-    newRowClone.find("input[type=date]").val(getDateString(newDateValue));
-
-    $("#FormTableBody").append(newRowClone);
-    updateInputNames();
-    checkConflictingDates();
-}
-
-function deleteInputRow(removeButton) {
-    $(removeButton).parents("tr").remove();
-    updateInputNames();
-    checkConflictingDates();
-}
-
 function updateInputNames() {
-    $("#FormTableBody").find("input[type=date]").each(function (index, element) {
-        $(element).attr("name", "Dates[" + String(index) + "]");
-    })
-    $("#FormTableBody").find("input[type=number]").each(function (index, element) {
-        $(element).attr("name", "Weights[" + String(index) + "]");
-    })
-}
-
-function checkConflictingDates() {
-    var lastRow = $("#FormTableBody tr").last().find("input[type=date]")[0];
-
-    $("#FormTableBody").find("input[type=date]").removeClass("border-danger");
-
-    $("#FormTableBody").find("input[type=date]").each(function (outerIndex, outerElement) {
-        $("#FormTableBody").find("input[type=date]").each(function (innerIndex, innerElement) {
-            if (outerElement == innerElement)
-                return;
-            if (outerElement == lastRow || innerElement == lastRow)
-                return;
-
-            if ($(outerElement).val() == $(innerElement).val()) {
-                $(outerElement).addClass("border-danger");
-                $(innerElement).addClass("border-danger");
-            }
-        });
+    $("table tbody tr").each(function (index, element) {
+        $(element).find("input[type=number]").attr("name", "Weights[" + String(index) + "]");
+        $(element).find("input[type=date]").attr("name", "Dates[" + String(index) + "]");
     });
 }
 
-function formPreSubmit() {
-    if ($("input[type=date].border-danger").length > 0){
-        window.alert("Please fix all errors before submitting.");
-        return false;
-    }
+function removeTemplateRow() {
+    $("#NewRowTemplate").remove();
+}
+
+function removeRow(sender) {
+    $(sender).parents("tr").remove();
+}
+
+function addNewRow(weight, date) {
+    var rowClone = $("#NewRowTemplate").clone();
+    rowClone.attr("id", null).removeClass("d-none");
+    rowClone.find("input").eq(0).val(weight);
+    rowClone.find("input").eq(1).val(date);
+
+    $("table tbody").prepend(rowClone);
+}
+
+function validateNewDate() {
+    var newDate = $("#NewDateInput").val();
+    var result = true;
+
+    $("table tbody tr td input[type=date]").each(function (index, element) {
+        if ($(element).val() == newDate) {
+            $("#NewDateInput").addClass("border-danger");
+            result = false;
+            return false;
+        }
+    });
+
+    if (result === true)
+        $("#NewDateInput").removeClass("border-danger");
+    return result;
+}
+
+function validateAllDates() {
+    var result = true;
+    var elements = $("table tbody tr td input[type=date]")
+    elements.removeClass("border-danger");
+    elements.each(function (outerIndex, outerElement) {
+        elements.each(function (innerIndex, innerElement) {
+            if (outerIndex === innerIndex)
+                return true;
+            else {
+                if ($(outerElement).val() === $(innerElement).val()) {
+                    $(outerElement).addClass("border-danger");
+                    $(innerElement).addClass("border-danger");
+                    result = false;
+                    return true;
+                }
+            }
+        });
+    });
+
+    return result;
+}
+
+
+////////  Event Handlers  ////////
+function formSubmit_Clicked() {
+    if (validateAllDates() === false)
+        return;
+    removeTemplateRow();
     updateInputNames();
 }
 
-function formSubmit_Clicked() {
-    $("#FormTableBody").find("tr").last().remove();
-    $("#inputRowTemplate").remove();
+function addRowButton_Clicked() {
+    var weightInput = $("#NewWeightInput");
+    var dateInput = $("#NewDateInput");
+
+    weightInput.removeClass("border-danger");
+    dateInput.removeClass("border-danger");
+
+    if (validateNewDate() === false)
+        return;
+
+    var weight = weightInput.val();
+    if (weight == "") {
+        weightInput.addClass("border-danger");
+        return;
+    }
+
+    var date = dateInput.val();
+    if (date == "") {
+        dateInput.addClass("border-danger");
+        return;
+    }
+
+    addNewRow(weight, date);
+    weightInput.val("");
 }
 
 $(document).ready(function () {
-    addNewInputRow();
-    $("#FormTableBody").find("input[type=date]").last().val(getDateString(new Date()));
-    checkConflictingDates();
-})
+    validateNewDate();
+});

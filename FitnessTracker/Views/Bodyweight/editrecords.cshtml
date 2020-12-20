@@ -10,43 +10,65 @@
 }
 
 
-<div class="container w-50">
+<div class="card">
     <form asp-controller="Bodyweight" asp-action="EditRecords" method="post" onsubmit="return formPreSubmit();">
-        <table id="FormTable" class="m-auto w-100">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Weight</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="FormTableBody">
-                @for (int i = 0; i < Model.Length; i++)
-                {
-                    <tr>
-                        <td><input type="date" class="form-control" name="Dates[@i]" value='@Model[i].Date.ToString("yyyy-MM-dd")' oninput="checkConflictingDates();" required /></td>
-                        <td><input type="number" class="form-control" name="Weights[@i]" value='@Model[i].Weight.ToString("F2")' min="0" max="200" step="0.1" required/></td>
-                        <td><a href="#" onclick="deleteInputRow(this);">Remove</a></td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr id="inputRowTemplate" class="d-none">
-                    <td>
-                        <input class="form-control" type="date" oninput="checkConflictingDates();" required />
-                    </td>
-                    <td>
-                        <input class="form-control" type="number" oninput="addNewInputRow(); $(this).removeAttr('oninput');" min="0" max="200" step="0.1" value="0" required />
-                    </td>
-                    <td><a class="d-none" href="#" onclick="deleteInputRow(this);">Remove</a></td>
-                </tr>
-            </tfoot>
-        </table>
 
-        <div class="float-right mt-2">
-            <a class="btn btn-secondary" asp-action="Summary">Cancel</a>
-            <input type="submit" class="btn btn-primary" value="Save Changes" onclick="formSubmit_Clicked();" />
+        <div class="card-header">
+            <h4>Edit Bodyweight Records</h4>
         </div>
 
+        <div class="card-body">
+            <div class="row">
+                <div class="col-5">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <div>Weight</div>
+                            <input id="NewWeightInput" class="form-control" type="number" min="0" max="300" step="0.1" placeholder="kg" />
+                        </div>
+                        <div class="flex-grow-1">
+                            <div>Date</div>
+                            <input id="NewDateInput" class="form-control" type="date" onchange="validateDates();" value="@DateTime.Today.ToString("yyyy-MM-dd")"/>
+                        </div>
+                    </div>
+                    <button type="button" id="AddNewRowButton" class="btn btn-primary float-right mt-1" onclick="addRowButton_Clicked();">Add Record</button>
+                </div>
+
+                <div class="col-7 overflow-auto" style="height:20rem">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Weight</th>
+                                <th>Date</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (BodyweightRecord record in Model)
+                            {
+                                <tr>
+                                    <td><input type="number" min="0" max="300" step="0.1" class="form-control" value="@record.Weight.ToString("F2")" required /></td>
+                                    <td><input type="date" class="form-control" value="@record.Date.ToString("yyyy-MM-dd")" required /></td>
+                                    <td><a href="#" class="font-weight-bold" onclick="removeRow(this);">X Remove</a></td>
+                                </tr>
+                            }
+                            <tr class="d-none" id="NewRowTemplate">
+                                <td><input type="number" min="0" max="300" step="0.1" class="form-control" required /></td>
+                                <td><input type="date" class="form-control" required /></td>
+                                <td><a href="#" class="font-weight-bold" onclick="removeRow(this);">X Remove</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="text-right">
+                <input type="submit" class="btn btn-primary" value="Save" onclick="formSubmit_Clicked();" />
+                <a asp-action="Summary" class="btn btn-danger">Cancel</a>
+            </div>
+        </div>
     </form>
+
+
+
 </div>
