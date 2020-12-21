@@ -16,12 +16,12 @@ namespace FitnessTracker.Controllers
     [Authorize]
     public class GoalController : Controller
     {
-        private ApplicationDbContext dbContext;
+        private IGoalStorageService storageService;
         private UserManager<FitnessUser> userManager;
 
-        public GoalController(ApplicationDbContext DBContext, UserManager<FitnessUser> UserManager)
+        public GoalController(IGoalStorageService StorageService, UserManager<FitnessUser> UserManager)
         {
-            dbContext = DBContext;
+            this.storageService = StorageService;
             userManager = UserManager;
         }
 
@@ -36,7 +36,7 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await GetUser();
 
-            Goal[] goals = await dbContext.Goals.Where(goal => goal.User == currentUser).ToArrayAsync();
+            Goal[] goals = await storageService.GetAllGoals(currentUser);
 
             return View(goals);
         }
@@ -57,7 +57,7 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await GetUser();
 
-            Goal goal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == ID && goal.User == currentUser);
+            Goal goal = await storageService.GetGoalByID(currentUser, ID);
             if (goal == null)
                 return BadRequest();
 
@@ -69,12 +69,11 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await GetUser();
 
-            Goal goal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == ID && goal.User == currentUser);
+            Goal goal = await storageService.GetGoalByID(currentUser, ID);
             if (goal == null)
                 return BadRequest();
 
-            dbContext.Goals.Remove(goal);
-            await dbContext.SaveChangesAsync();
+            await storageService.DeleteGoalByID(currentUser, ID);
 
             return RedirectToAction("Summary");
 
@@ -88,49 +87,39 @@ namespace FitnessTracker.Controllers
 
             FitnessUser currentUser = await GetUser();
 
+            Goal goal = null;
             if (GoalInput.ID != 0)
-            {
-                Goal existingGoal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == GoalInput.ID && goal.User == currentUser);
-                switch (existingGoal)
-                {
-                    case WeightliftingGoal wGoal:
-                        wGoal.Reps = GoalInput.Reps;
-                        wGoal.Weight = GoalInput.Weight;
-                        break;
-                    case TimedGoal tGoal:
-                        tGoal.Quantity = (int)GoalInput.Quantity;
-                        tGoal.QuantityUnit = GoalInput.QuantityUnit;
-                        tGoal.Time = new TimeSpan(GoalInput.Hours, GoalInput.Minutes, GoalInput.Seconds);
-                        break;
-                }
-                existingGoal.Activity = GoalInput.Activity;
-                dbContext.Goals.Update(existingGoal);
-            }
+                goal = await storageService.GetGoalByID(currentUser, GoalInput.ID);
             else
             {
-                Goal newGoal = null;
-                if (GoalInput.Type.ToLower() == "weightlifting")
+                switch(GoalInput.Type.ToLower())
                 {
-                    newGoal = new WeightliftingGoal()
-                    {
-                        Weight = GoalInput.Weight,
-                        Reps = GoalInput.Reps
-                    };
+                    case "weightlifting":
+                        goal = new WeightliftingGoal();
+                        break;
+                    case "timed":
+                        goal = new TimedGoal();
+                        break;
                 }
-                else if (GoalInput.Type.ToLower() == "timed")
-                {
-                    newGoal = new TimedGoal()
-                    {
-                        Quantity = (int)GoalInput.Quantity,
-                        QuantityUnit = GoalInput.QuantityUnit,
-                        Time = new TimeSpan(GoalInput.Hours, GoalInput.Minutes, GoalInput.Seconds)
-                    };
-                }
-                newGoal.Activity = GoalInput.Activity;
-                newGoal.User = currentUser;
-                dbContext.Goals.Add(newGoal);
             }
-            await dbContext.SaveChangesAsync();
+
+            switch (goal)
+            {
+                case WeightliftingGoal wGoal:
+                    wGoal.Reps = GoalInput.Reps;
+                    wGoal.Weight = GoalInput.Weight;
+                    break;
+                case TimedGoal tGoal:
+                    tGoal.Quantity = (int)GoalInput.Quantity;
+                    tGoal.QuantityUnit = GoalInput.QuantityUnit;
+                    tGoal.Time = new TimeSpan(GoalInput.Hours, GoalInput.Minutes, GoalInput.Seconds);
+                    break;
+            }
+
+            goal.Activity = GoalInput.Activity;
+            goal.User = currentUser;
+
+            await storageService.StoreGoal(goal);
 
             return RedirectToAction("Summary");
         }
@@ -140,39 +129,37 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await GetUser();
 
-            Goal goal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == Progress.GoalID && goal.User == currentUser);
+            Goal goal = await storageService.GetGoalByID(currentUser, Progress.GoalID);
             if (goal == null)
                 return BadRequest();
+
+            GoalProgress newProgress = null;
 
             switch (Progress.Type.ToLower())
             {
                 case "weightlifting":
-                    WeightliftingProgress wp = new WeightliftingProgress()
+                    newProgress = new WeightliftingProgress()
                     {
-                        Date = Progress.Date,
-                        Goal = goal,
-                        User = currentUser,
                         Weight = Progress.Weight,
                         Reps = Progress.Reps
                     };
-                    dbContext.WeightliftingProgressRecords.Add(wp);
                     break;
                 case "timed":
-                    TimedProgress tp = new TimedProgress()
+                    newProgress = new TimedProgress()
                     {
-                        Date = Progress.Date,
-                        Goal = goal,
-                        User = currentUser,
                         Time = new TimeSpan(Progress.Hours, Progress.Minutes, Progress.Seconds),
                         Quantity = Progress.Quantity
                     };
-                    dbContext.TimedProgressRecords.Add(tp);
                     break;
                 default:
                     return BadRequest();
             }
 
-            await dbContext.SaveChangesAsync();
+            newProgress.Goal = goal;
+            newProgress.Date = Progress.Date;
+            newProgress.User = currentUser;
+
+            await storageService.StoreGoalProgress(newProgress);
 
             return RedirectToAction("ViewGoal", new { ID = Progress.GoalID });
         }
@@ -182,14 +169,11 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await GetUser();
 
-            Goal goal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == ID && goal.User == currentUser);
+            Goal goal = await storageService.GetGoalByID(currentUser, ID);
             if (goal == null)
                 return BadRequest();
 
-            GoalProgress[] progress = await dbContext
-                .GoalProgressRecords.Where(record => record.Goal == goal && record.User == currentUser)
-                .OrderByDescending(progress => progress.Date)
-                .ToArrayAsync();
+            GoalProgress[] progress = await storageService.GetGoalProgress(currentUser, ID);
 
             if (progress == null)
                 return BadRequest();
@@ -208,17 +192,12 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await GetUser();
 
-            Goal targetGoal = await dbContext.Goals.FirstOrDefaultAsync(goal => goal.ID == GoalID && goal.User == currentUser);
-            if (targetGoal == null)
-                return BadRequest();
-
-            var progress = await dbContext.WeightliftingProgressRecords
-                .Where(record => record.Goal.ID == GoalID)
-                .OrderBy(record => record.Date)
+            GoalProgress[] progress = await storageService.GetGoalProgress(currentUser, GoalID,true);
+            var result = Array.ConvertAll(progress, item => (WeightliftingProgress)item)
                 .Select(record => new { Date = record.Date.ToString("d"), Weight = record.Weight, Reps = record.Reps })
-                .ToArrayAsync();
+                .ToArray();
 
-            return Json(progress);
+            return Json(result);
         }
 
         [HttpGet]
@@ -226,17 +205,13 @@ namespace FitnessTracker.Controllers
         {
             FitnessUser currentUser = await GetUser();
 
-            Goal targetGoal = await dbContext.Goals.FirstOrDefaultAsync(Goal => Goal.ID == GoalID && Goal.User == currentUser);
-            if (targetGoal == null)
-                return BadRequest();
+            GoalProgress[] progress = await storageService.GetGoalProgress(currentUser, GoalID,true);
 
-            var progress = await dbContext.TimedProgressRecords
-                .Where(record => record.Goal.ID == GoalID)
-                .OrderBy(record => record.Date)
-                .Select(record => new { Date = record.Date.ToString("d"), Timespan = record.Time, Quantity = record.Quantity, QuantityUnit=record.QuantityUnit})
-                .ToArrayAsync();
+            var result = Array.ConvertAll(progress, item => (TimedProgress)item)
+                .Select(record => new { Date = record.Date.ToString("d"), Timespan = record.Time, Quantity = record.Quantity, QuantityUnit = record.QuantityUnit })
+                .ToArray();
 
-            return Json(progress);
+            return Json(result);
         }
     }
 }
